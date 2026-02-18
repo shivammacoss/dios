@@ -1,4 +1,4 @@
-# PipXcapital VPS Deployment Guide (Fresh OS Installation)
+# DIOS VPS Deployment Guide (Fresh OS Installation)
 
 ## Step 1: First Login to VPS
 
@@ -11,13 +11,13 @@ ssh root@YOUR_VPS_IP
 
 ```bash
 # Create new user
-adduser PipXcapital
+adduser Dios
 
 # Add user to sudo group
-usermod -aG sudo PipXcapital
+usermod -aG sudo Dios
 
 # Switch to new user
-su - PipXcapital
+su - Dios
 ```
 
 ## Step 3: Update System
@@ -91,24 +91,24 @@ sudo apt install git -y
 
 ### Option A: Using Git (Recommended)
 ```bash
-cd /home/PipXcapital
+cd /home/Dios
 git clone YOUR_REPO_URL setup
 ```
 
 ### Option B: Using SCP (from your local machine)
 ```bash
 # Run this on your LOCAL machine, not VPS
-scp -r ./setup PipXcapital@YOUR_VPS_IP:/home/PipXcapital/
+scp -r ./setup Dios@YOUR_VPS_IP:/home/Dios/
 ```
 
 ### Option C: Using SFTP/FileZilla
 - Connect to VPS using FileZilla
-- Upload the `setup` folder to `/home/PipXcapital/`
+- Upload the `setup` folder to `/home/Dios/`
 
 ## Step 9: Configure Backend
 
 ```bash
-cd /home/PipXcapital/setup/backend
+cd /home/Dios/setup/backend
 
 # Install dependencies
 npm install
@@ -122,7 +122,7 @@ Edit `.env` with your production values:
 ```env
 PORT=5001
 NODE_ENV=production
-MONGODB_URI=mongodb://localhost:27017/PipXcapital
+MONGODB_URI=mongodb://localhost:27017/Dios
 JWT_SECRET=your_secure_random_string_here
 CORS_ORIGIN=http://YOUR_VPS_IP:5173
 ```
@@ -130,7 +130,7 @@ CORS_ORIGIN=http://YOUR_VPS_IP:5173
 ## Step 10: Configure Frontend
 
 ```bash
-cd /home/PipXcapital/setup/frontend
+cd /home/Dios/setup/frontend
 
 # Install dependencies
 npm install
@@ -148,17 +148,17 @@ VITE_API_URL=http://YOUR_VPS_IP:5001
 ## Step 11: Build Frontend
 
 ```bash
-cd /home/PipXcapital/setup/frontend
+cd /home/Dios/setup/frontend
 npm run build
 ```
 
 ## Step 12: Start Backend with PM2
 
 ```bash
-cd /home/PipXcapital/setup/backend
+cd /home/Dios/setup/backend
 
 # Start with PM2
-pm2 start server.js --name PipXcapital-backend
+pm2 start server.js --name Dios-backend
 
 # Save PM2 configuration
 pm2 save
@@ -172,8 +172,8 @@ pm2 startup
 ### Option A: Using serve (Simple)
 ```bash
 npm install -g serve
-cd /home/PipXcapital/setup/frontend
-pm2 start "serve -s dist -l 5173" --name PipXcapital-frontend
+cd /home/Dios/setup/frontend
+pm2 start "serve -s dist -l 5173" --name Dios-frontend
 ```
 
 ### Option B: Using Nginx (Recommended for Production)
@@ -181,7 +181,7 @@ pm2 start "serve -s dist -l 5173" --name PipXcapital-frontend
 sudo apt install nginx
 
 # Configure nginx
-sudo nano /etc/nginx/sites-available/PipXcapital
+sudo nano /etc/nginx/sites-available/Dios
 ```
 
 Nginx configuration:
@@ -192,7 +192,7 @@ server {
     
     # Frontend
     location / {
-        root /home/PipXcapital/setup/frontend/dist;
+        root /home/Dios/setup/frontend/dist;
         try_files $uri $uri/ /index.html;
     }
     
@@ -220,7 +220,7 @@ server {
 
 Enable the site:
 ```bash
-sudo ln -s /etc/nginx/sites-available/PipXcapital /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/Dios /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
@@ -248,8 +248,8 @@ sudo ufw enable
 pm2 status              # Check status
 pm2 logs                # View logs
 pm2 restart all         # Restart all apps
-pm2 stop PipXcapital-backend   # Stop backend
-pm2 delete PipXcapital-backend # Remove from PM2
+pm2 stop Dios-backend   # Stop backend
+pm2 delete Dios-backend # Remove from PM2
 ```
 
 ## Troubleshooting
@@ -270,7 +270,7 @@ sudo systemctl start mongod
 
 ### View logs
 ```bash
-pm2 logs PipXcapital-backend --lines 100
+pm2 logs Dios-backend --lines 100
 ```
 
 ## Adding Domain Later

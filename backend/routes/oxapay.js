@@ -84,8 +84,8 @@ router.post('/create-payment', async (req, res) => {
     await wallet.save()
 
     // Create OxaPay invoice
-    const backendUrl = process.env.BACKEND_URL || 'https://pipxcapital.com/api'
-    const frontendUrl = process.env.FRONTEND_URL || 'https://pipxcapital.com'
+    const backendUrl = process.env.BACKEND_URL || 'https://dios.com/api'
+    const frontendUrl = process.env.FRONTEND_URL || 'https://dios.com'
     const callbackUrl = `${backendUrl}/api/oxapay/webhook`
     const returnUrl = `${frontendUrl}/wallet?deposit=success`
 
@@ -98,7 +98,7 @@ router.post('/create-payment', async (req, res) => {
       callback_url: callbackUrl,
       return_url: returnUrl,
       order_id: transaction._id.toString(),
-      description: `PipXcapital Deposit - $${amount}`,
+      description: `Dios Deposit - $${amount}`,
       sandbox: process.env.OXAPAY_SANDBOX === 'true'
     }
 
@@ -128,8 +128,8 @@ router.post('/create-payment', async (req, res) => {
             transactionId: transaction._id.toString(),
             paymentMethod: 'Crypto (OxaPay)',
             date: new Date().toLocaleString(),
-            platformName: settings?.platformName || 'PipXcapital',
-            supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+            platformName: settings?.platformName || 'Dios',
+            supportEmail: settings?.supportEmail || 'support@Dios.com',
             year: new Date().getFullYear().toString()
           })
         }
@@ -254,8 +254,8 @@ router.post('/webhook', async (req, res) => {
               paymentMethod: 'Crypto (OxaPay)',
               date: new Date().toLocaleString(),
               newBalance: wallet.balance.toFixed(2),
-              platformName: settings?.platformName || 'PipXcapital',
-              supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+              platformName: settings?.platformName || 'Dios',
+              supportEmail: settings?.supportEmail || 'support@Dios.com',
               year: new Date().getFullYear().toString()
             })
           }
@@ -332,7 +332,7 @@ router.post('/create-payout', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Transaction not found' })
     }
 
-    const backendUrl = process.env.BACKEND_URL || 'https://pipxcapital.com/api'
+    const backendUrl = process.env.BACKEND_URL || 'https://dios.com/api'
 
     const payoutData = {
       address: address || transaction.cryptoAddress,
@@ -340,7 +340,7 @@ router.post('/create-payout', async (req, res) => {
       currency: currency || transaction.cryptoCurrency || 'USDT',
       network: network || transaction.cryptoNetwork,
       callback_url: `${backendUrl}/api/oxapay/webhook`,
-      description: `PipXcapital Withdrawal - ${transaction._id}`
+      description: `Dios Withdrawal - ${transaction._id}`
     }
 
     const oxaRes = await fetch(`${OXAPAY_API_URL}/payout`, {

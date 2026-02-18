@@ -15,8 +15,9 @@ export default {
           500: '#2a2a2a',
         },
         accent: {
-          green: 'var(--theme-primary, #00d4aa)',
-          orange: 'var(--theme-accent, #ff6b35)',
+          green: 'var(--theme-primary, #D4A84B)',
+          gold: 'var(--theme-primary, #D4A84B)',
+          orange: 'var(--theme-accent, #C49A3D)',
         },
         theme: {
           primary: 'var(--theme-primary, #3B82F6)',

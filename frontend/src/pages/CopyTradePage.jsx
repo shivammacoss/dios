@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { API_URL } from '../config/api'
-import logoImage from '../assets/PipXcapital.png'
+import logoImage from '../assets/Dioslogo.png'
 
 const CopyTradePage = () => {
   const navigate = useNavigate()
@@ -395,7 +395,7 @@ const CopyTradePage = () => {
           onMouseLeave={() => setSidebarExpanded(false)}
         >
           <div className="p-4 flex items-center justify-center">
-            <img src={logoImage} alt="PipXcapital" className="h-8 w-auto object-contain" />
+            <img src={logoImage} alt="Dios" className="h-8 w-auto object-contain" />
           </div>
           <nav className="flex-1 px-2">
             {menuItems.map((item) => (

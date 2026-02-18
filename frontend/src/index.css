@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  /* Theme CSS Variables - Default Blue Theme */
-  --theme-primary: #3B82F6;
-  --theme-primaryHover: #2563EB;
-  --theme-secondary: #10B981;
-  --theme-secondaryHover: #059669;
-  --theme-accent: #3B82F6;
-  --theme-accentHover: #2563EB;
+  /* Theme CSS Variables - Gold Theme (Dios Derivatives) */
+  --theme-primary: #D4A84B;
+  --theme-primaryHover: #C49A3D;
+  --theme-secondary: #E8C872;
+  --theme-secondaryHover: #D4B55E;
+  --theme-accent: #D4A84B;
+  --theme-accentHover: #C49A3D;
   --theme-bgPrimary: #000000;
   --theme-bgSecondary: #0D0D0D;
   --theme-bgCard: #1A1A1A;
@@ -22,15 +22,15 @@
   --theme-success: #10B981;
   --theme-error: #EF4444;
   --theme-warning: #F59E0B;
-  --theme-info: #3B82F6;
-  --theme-buyColor: #3B82F6;
+  --theme-info: #D4A84B;
+  --theme-buyColor: #D4A84B;
   --theme-sellColor: #EF4444;
   --theme-profitColor: #10B981;
   --theme-lossColor: #EF4444;
   --theme-sidebarBg: #0D0D0D;
   --theme-sidebarText: #9CA3AF;
-  --theme-sidebarActive: #3B82F6;
-  --theme-buttonPrimary: #3B82F6;
+  --theme-sidebarActive: #D4A84B;
+  --theme-buttonPrimary: #D4A84B;
   --theme-buttonSecondary: #374151;
   --theme-buttonDanger: #EF4444;
 }

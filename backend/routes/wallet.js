@@ -125,8 +125,8 @@ router.post('/deposit', async (req, res) => {
           transactionId: transaction._id.toString(),
           paymentMethod: paymentMethod || 'Bank Transfer',
           date: new Date().toLocaleString(),
-          platformName: settings?.platformName || 'PipXcapital',
-          supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+          platformName: settings?.platformName || 'Dios',
+          supportEmail: settings?.supportEmail || 'support@Dios.com',
           year: new Date().getFullYear().toString()
         })
       }
@@ -200,8 +200,8 @@ router.post('/withdraw', async (req, res) => {
           transactionId: transaction._id.toString(),
           paymentMethod: paymentMethod || 'Bank Transfer',
           date: new Date().toLocaleString(),
-          platformName: settings?.platformName || 'PipXcapital',
-          supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+          platformName: settings?.platformName || 'Dios',
+          supportEmail: settings?.supportEmail || 'support@Dios.com',
           year: new Date().getFullYear().toString()
         })
       }
@@ -390,14 +390,14 @@ router.put('/admin/approve/:id', async (req, res) => {
       try {
         const payoutApiKey = process.env.OXAPAY_PAYOUT_API_KEY
         if (payoutApiKey) {
-          const backendUrl = process.env.BACKEND_URL || 'https://pipxcapital.com/api'
+          const backendUrl = process.env.BACKEND_URL || 'https://dios.com/api'
           const payoutData = {
             address: transaction.cryptoAddress,
             amount: transaction.amount,
             currency: transaction.cryptoCurrency || 'USDT',
             network: transaction.cryptoNetwork,
             callback_url: `${backendUrl}/api/oxapay/webhook`,
-            description: `PipXcapital Withdrawal - ${transaction._id}`
+            description: `Dios Withdrawal - ${transaction._id}`
           }
 
           const oxaRes = await fetch('https://api.oxapay.com/v1/payout', {
@@ -473,8 +473,8 @@ router.put('/admin/approve/:id', async (req, res) => {
           paymentMethod: transaction.paymentMethod || 'Wallet',
           date: new Date().toLocaleString(),
           newBalance: wallet.balance.toFixed(2),
-          platformName: settings?.platformName || 'PipXcapital',
-          supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+          platformName: settings?.platformName || 'Dios',
+          supportEmail: settings?.supportEmail || 'support@Dios.com',
           year: new Date().getFullYear().toString()
         })
       }
@@ -581,14 +581,14 @@ router.put('/transaction/:id/approve', async (req, res) => {
       try {
         const payoutApiKey = process.env.OXAPAY_PAYOUT_API_KEY
         if (payoutApiKey) {
-          const backendUrl = process.env.BACKEND_URL || 'https://pipxcapital.com/api'
+          const backendUrl = process.env.BACKEND_URL || 'https://dios.com/api'
           const payoutData = {
             address: transaction.cryptoAddress,
             amount: transaction.amount,
             currency: transaction.cryptoCurrency || 'USDT',
             network: transaction.cryptoNetwork,
             callback_url: `${backendUrl}/api/oxapay/webhook`,
-            description: `PipXcapital Withdrawal - ${transaction._id}`
+            description: `Dios Withdrawal - ${transaction._id}`
           }
 
           const oxaRes = await fetch('https://api.oxapay.com/v1/payout', {
@@ -660,8 +660,8 @@ router.put('/transaction/:id/approve', async (req, res) => {
           paymentMethod: transaction.paymentMethod || 'Wallet',
           date: new Date().toLocaleString(),
           newBalance: wallet.balance.toFixed(2),
-          platformName: settings?.platformName || 'PipXcapital',
-          supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+          platformName: settings?.platformName || 'Dios',
+          supportEmail: settings?.supportEmail || 'support@Dios.com',
           year: new Date().getFullYear().toString()
         })
       }

@@ -5,11 +5,11 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // Admin credentials
-const ADMIN_EMAIL = 'admin@PipXcapital.com'
+const ADMIN_EMAIL = 'admin@Dios.com'
 const ADMIN_PASSWORD = 'Admin@123'
 const ADMIN_FIRST_NAME = 'Super'
 const ADMIN_LAST_NAME = 'Admin'
-const ADMIN_URL_SLUG = 'PipXcapital'
+const ADMIN_URL_SLUG = 'Dios'
 
 const adminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
@@ -80,7 +80,7 @@ async function createAdmin() {
       lastName: ADMIN_LAST_NAME,
       role: 'SUPER_ADMIN',
       urlSlug: ADMIN_URL_SLUG,
-      brandName: 'PipXcapital',
+      brandName: 'Dios',
       status: 'ACTIVE'
     })
 

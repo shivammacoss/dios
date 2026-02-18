@@ -25,43 +25,43 @@ const Navigation = () => {
         <div className="flex items-center gap-[34px]">
           <a href="/" className="flex items-center">
             <img
-              src="/PipXcapital.png"
-              alt="PipXcapital Logo"
+              src="/Dioslogo.png"
+              alt="Dios Logo"
               className="h-[60px] w-auto object-contain"
             />
           </a>
           <div className="hidden md:flex items-center gap-[24px]">
-            <button className="flex items-center gap-[4px] text-white hover:text-[#CFF12F] transition-colors text-[16px] font-medium py-2">
+            <button className="flex items-center gap-[4px] text-white hover:text-[#D4A84B] transition-colors text-[16px] font-medium py-2">
               What We Offer <ChevronDown size={16} />
             </button>
-            <a href="#" className="text-white hover:text-[#CFF12F] transition-colors text-[16px] font-medium py-2">
+            <a href="#" className="text-white hover:text-[#D4A84B] transition-colors text-[16px] font-medium py-2">
               Support
             </a>
           </div>
         </div>
         <div className="flex items-center gap-[12px] md:gap-[24px]">
           <a
-            href="/PipXcapital.apk"
+            href="/Dios.apk"
             download
             className="flex items-center gap-2 rounded-lg border border-green-500/50 bg-green-500/10 px-4 lg:px-5 py-2 lg:py-2.5 text-[14px] lg:text-[15px] font-semibold text-green-400 backdrop-blur-sm transition-all hover:bg-green-500/20 active:scale-95"
           >
             <Download className="w-4 h-4" />
             Download APK
           </a>
-          <button className="flex items-center gap-[6px] text-white hover:text-[#CFF12F] transition-colors text-[14px] font-medium">
+          <button className="flex items-center gap-[6px] text-white hover:text-[#D4A84B] transition-colors text-[14px] font-medium">
             <Globe size={18} />
             <span className="hidden sm:inline">EN</span>
             <ChevronDown size={14} className="hidden sm:inline" />
           </button>
           <button
             onClick={() => navigate('/user/login')}
-            className="text-white hover:text-[#CFF12F] transition-colors text-[16px] font-medium hidden sm:block"
+            className="text-white hover:text-[#D4A84B] transition-colors text-[16px] font-medium hidden sm:block"
           >
             Log in
           </button>
           <button
             onClick={() => navigate('/user/signup')}
-            className="bg-[#CFF12F] text-black px-[20px] py-[10px] rounded-[24px] text-[16px] font-bold hover:brightness-110 transition-all whitespace-nowrap"
+            className="bg-[#D4A84B] text-black px-[20px] py-[10px] rounded-[24px] text-[16px] font-bold hover:brightness-110 transition-all whitespace-nowrap"
           >
             Sign up
           </button>
@@ -84,11 +84,10 @@ const HeroSection = () => {
           loop
           playsInline
           className="w-full h-full object-cover"
-          poster="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/a30101db-b978-4ecc-8998-3de500870677-robinhood-com/assets/images/EU_Web_Landing_Hero_Desktop_Short-1.jpg"
         >
           <source 
-            src="https://videos.ctfassets.net/ilblxxee70tt/2s4toSMKFMvqnwyBZyS6LD/16627808bbf120f5a1264d23b1007278/EU_Web_Landing_Hero_Desktop_Short.webm" 
-            type="video/webm" 
+            src="/DiosDerivativesvideo.mp4" 
+            type="video/mp4" 
           />
         </video>
         <div 
@@ -96,25 +95,7 @@ const HeroSection = () => {
           style={{ background: 'radial-gradient(circle at center, rgba(17, 14, 8, 0) 0%, rgba(17, 14, 8, 0.4) 100%)' }} 
         />
       </div>
-      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-6 text-center">
-        <div className="max-w-[1000px] flex flex-col items-center">
-          <h1 
-            className="text-white mb-6"
-            style={{ fontSize: 'clamp(3.5rem, 8vw, 5.25rem)', lineHeight: '1.1', fontWeight: 300, letterSpacing: '-0.02em' }}
-          >
-            One place for all your investments
-          </h1>
-          <p className="text-white text-lg md:text-xl font-normal max-w-[640px] mb-10 opacity-90" style={{ lineHeight: '1.6' }}>
-            Everything you need to start investing is here. From Stock Tokens to crypto—buy, sell, and manage it all in one place.
-          </p>
-          <button
-            onClick={() => navigate('/user/signup')}
-            className="inline-flex items-center justify-center bg-[#CFF12F] hover:bg-[#CFF12F]/90 active:scale-[0.98] transition-all duration-200 text-black px-8 py-3 rounded-full text-base font-medium min-w-[140px]"
-          >
-            Get started
-          </button>
-        </div>
-      </div>
+    
     </section>
   )
 }
@@ -122,7 +103,7 @@ const HeroSection = () => {
 // Invest Stock Tokens Section
 const InvestStockTokens = () => {
   return (
-    <section className="bg-[#CFF12F] text-black overflow-hidden">
+    <section className="bg-[#D4A84B] text-black overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 md:px-[60px] py-20 md:py-[140px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-[120px] items-start">
           <div className="relative flex justify-center lg:justify-start">
@@ -149,7 +130,7 @@ const InvestStockTokens = () => {
               </a>
             </div>
             <p className="text-[12px] leading-[1.6] text-black/70">
-              Stock Tokens are derivative contracts between you and Bull4x. They carry a high level of risk and are not appropriate for all investors.
+              Stock Tokens are derivative contracts between you and Dios. They carry a high level of risk and are not appropriate for all investors.
             </p>
           </div>
         </div>
@@ -173,7 +154,7 @@ const CryptoPromo = () => {
       <div className="max-w-[1440px] mx-auto px-6 md:px-[60px] relative z-10">
         <div className="max-w-[480px]">
           <div className="mb-8 flex items-center gap-2">
-            <span className="text-white text-[24px] font-medium">Bull4x Crypto</span>
+            <span className="text-white text-[24px] font-medium">Dios</span>
           </div>
           <h1 className="text-white text-[48px] md:text-[64px] mb-6 leading-[1.1] tracking-[-0.02em] font-light">
             Get more crypto for your money
@@ -214,7 +195,7 @@ const PerpetualFutures = () => {
               Advanced traders can trade with leverage, open long or short positions and more—in a few taps.
             </p>
             <div className="mb-[48px]">
-              <a href="#" className="inline-block bg-[#CFF12F] text-black text-[16px] font-semibold py-[12px] px-[24px] rounded-[24px] hover:opacity-90 transition-opacity">
+              <a href="#" className="inline-block bg-[#D4A84B] text-black text-[16px] font-semibold py-[12px] px-[24px] rounded-[24px] hover:opacity-90 transition-opacity">
                 Learn more
               </a>
             </div>
@@ -255,7 +236,7 @@ const SecurityTrust = () => {
           </h2>
           <button
             onClick={() => navigate('/user/signup')}
-            className="inline-flex items-center justify-center bg-[#CFF12F] text-black text-[16px] font-medium px-[28px] py-[14px] rounded-[32px] hover:opacity-90 transition-opacity duration-200"
+            className="inline-flex items-center justify-center bg-[#D4A84B] text-black text-[16px] font-medium px-[28px] py-[14px] rounded-[32px] hover:opacity-90 transition-opacity duration-200"
           >
             Get started
           </button>
@@ -275,7 +256,7 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-[#CFF12F] text-[#000000] py-14 px-6 md:px-[60px]">
+    <footer className="bg-[#D4A84B] text-[#000000] py-14 px-6 md:px-[60px]">
       <div className="max-w-[1440px] mx-auto">
         <div className="border-b border-black/10 pb-8 mb-12">
           <p className="text-[14px] leading-[1.6] md:text-[18px]">
@@ -336,17 +317,17 @@ const Footer = () => {
           </div>
           <div className="space-y-6 text-[12px] leading-[1.6]">
             <p>
-              Stock Tokens are derivative contracts between you and Bull4x. They carry a high level of risk and are not appropriate for all investors.
+              Stock Tokens are derivative contracts between you and Dios. They carry a high level of risk and are not appropriate for all investors.
             </p>
             <p>
               Perpetual futures are complex derivative products, and trading involves significant risk. Leveraged trading can amplify losses.
             </p>
-            <p>© 2025 Bull4x. All rights reserved.</p>
+            <p>© 2025 Dios. All rights reserved.</p>
           </div>
         </div>
         <div className="mt-20 flex justify-center select-none pointer-events-none pb-8">
           <h1 className="text-[18vw] lg:text-[20vw] font-bold leading-[1] tracking-tighter">
-            Bull4x
+            Dios
           </h1>
         </div>
       </div>

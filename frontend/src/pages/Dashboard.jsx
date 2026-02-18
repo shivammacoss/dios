@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { API_URL } from '../config/api'
-import logoImage from '../assets/PipXcapital.png'
+import logoImage from '../assets/Dioslogo.png'
 import BannerSlider from '../components/BannerSlider'
 
 const Dashboard = () => {
@@ -361,7 +361,7 @@ const Dashboard = () => {
       >
         {/* Logo - Icon only */}
         <div className="p-4 flex items-center justify-center shrink-0">
-          <img src={logoImage} alt="PipXcapital" className="h-8 w-auto object-contain" />
+          <img src={logoImage} alt="Dios" className="h-8 w-auto object-contain" />
         </div>
 
         {/* Menu */}

@@ -325,9 +325,9 @@ router.put('/users/:id/ban', async (req, res) => {
           email: user.email,
           reason: reason || 'Policy violation',
           date: new Date().toLocaleString(),
-          platformName: settings?.platformName || 'PipXcapital',
-          loginUrl: settings?.loginUrl || 'https://PipXcapital.com/login',
-          supportEmail: settings?.supportEmail || 'support@PipXcapital.com',
+          platformName: settings?.platformName || 'Dios',
+          loginUrl: settings?.loginUrl || 'https://Dios.com/login',
+          supportEmail: settings?.supportEmail || 'support@Dios.com',
           year: new Date().getFullYear().toString()
         })
       }

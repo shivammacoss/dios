@@ -171,7 +171,7 @@ const AdminBannerManagement = () => {
           </div>
           <button
             onClick={openAddModal}
-            className="flex items-center gap-2 bg-[#CFF12F] text-black px-4 py-2 rounded-lg font-semibold hover:bg-[#b8d929] transition-colors"
+            className="flex items-center gap-2 bg-[#D4A84B] text-black px-4 py-2 rounded-lg font-semibold hover:bg-[#b8d929] transition-colors"
           >
             <Plus size={20} />
             Add Banner
@@ -344,7 +344,7 @@ const AdminBannerManagement = () => {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#CFF12F]"
+                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4A84B]"
                     placeholder="Enter banner title"
                     required
                   />
@@ -357,7 +357,7 @@ const AdminBannerManagement = () => {
                     type="url"
                     value={formData.link}
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#CFF12F]"
+                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4A84B]"
                     placeholder="https://example.com"
                   />
                 </div>
@@ -369,7 +369,7 @@ const AdminBannerManagement = () => {
                     type="number"
                     value={formData.order}
                     onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#CFF12F]"
+                    className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4A84B]"
                     placeholder="0"
                     min="0"
                   />
@@ -383,7 +383,7 @@ const AdminBannerManagement = () => {
                       type="date"
                       value={formData.startDate}
                       onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                      className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#CFF12F]"
+                      className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4A84B]"
                     />
                   </div>
                   <div>
@@ -392,7 +392,7 @@ const AdminBannerManagement = () => {
                       type="date"
                       value={formData.endDate}
                       onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                      className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#CFF12F]"
+                      className="w-full bg-[#0d0d0d] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#D4A84B]"
                     />
                   </div>
                 </div>
@@ -404,7 +404,7 @@ const AdminBannerManagement = () => {
                     type="button"
                     onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
                     className={`w-12 h-6 rounded-full transition-colors ${
-                      formData.isActive ? 'bg-[#CFF12F]' : 'bg-gray-700'
+                      formData.isActive ? 'bg-[#D4A84B]' : 'bg-gray-700'
                     }`}
                   >
                     <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
@@ -428,7 +428,7 @@ const AdminBannerManagement = () => {
                   <button
                     type="submit"
                     disabled={loading || (!imageFile && !editingBanner)}
-                    className="flex-1 bg-[#CFF12F] text-black py-3 rounded-lg font-semibold hover:bg-[#b8d929] transition-colors disabled:opacity-50"
+                    className="flex-1 bg-[#D4A84B] text-black py-3 rounded-lg font-semibold hover:bg-[#b8d929] transition-colors disabled:opacity-50"
                   >
                     {loading ? 'Saving...' : editingBanner ? 'Update Banner' : 'Add Banner'}
                   </button>

@@ -228,7 +228,7 @@ app.get('/api/app-version', (req, res) => {
     success: true,
     minVersion: process.env.MIN_APP_VERSION || '1.0.0',
     latestVersion: process.env.LATEST_APP_VERSION || '1.0.0',
-    updateUrl: process.env.APP_UPDATE_URL || 'https://pipxcapital.com/download',
+    updateUrl: process.env.APP_UPDATE_URL || 'https://dios.com/download',
     forceUpdate: process.env.FORCE_APP_UPDATE === 'true'
   })
 })
@@ -237,9 +237,9 @@ app.get('/api/app-version', (req, res) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 // Serve APK download
-app.get('/downloads/PipXcapital.apk', (req, res) => {
-  const apkPath = path.join(__dirname, 'apk', 'PipXcapital.apk')
-  res.download(apkPath, 'PipXcapital.apk', (err) => {
+app.get('/downloads/dios.apk', (req, res) => {
+  const apkPath = path.join(__dirname, 'apk', 'Dios.apk')
+  res.download(apkPath, 'Dios.apk', (err) => {
     if (err) {
       console.error('APK download error:', err)
       res.status(404).json({ error: 'APK not found' })
@@ -249,7 +249,7 @@ app.get('/downloads/PipXcapital.apk', (req, res) => {
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ message: 'PipXcapital API is running' })
+  res.json({ message: 'Dios API is running' })
 })
 
 const PORT = process.env.PORT || 5000

@@ -39,20 +39,35 @@ function getDefaultInstruments() {
   ]
 }
 
-// GET /api/prices/instruments - Get all available instruments (only those with live prices)
+// GET /api/prices/instruments - Get all available instruments
 router.get('/instruments', async (req, res) => {
   try {
     console.log('[MetaApi] Returning supported instruments')
     
     // Get price cache from MetaApi service
     const priceCache = metaApiService.getPriceCache()
-    
-    // Only show symbols that have actual price data
     const symbolsWithPrices = Array.from(priceCache.keys())
     
-    const instruments = symbolsWithPrices.map(symbol => {
+    // If we have live prices, use those symbols
+    // Otherwise, return all supported symbols from fallback lists
+    let symbolsToReturn = symbolsWithPrices
+    
+    if (symbolsToReturn.length === 0) {
+      // MetaApi not connected yet - return all supported symbols
+      console.log('[MetaApi] No live prices yet, returning all supported symbols')
+      symbolsToReturn = [
+        ...metaApiService.FOREX_SYMBOLS,
+        ...metaApiService.METAL_SYMBOLS,
+        ...metaApiService.ENERGY_SYMBOLS,
+        ...metaApiService.CRYPTO_SYMBOLS,
+        ...metaApiService.STOCK_SYMBOLS
+      ]
+    }
+    
+    const instruments = symbolsToReturn.map(symbol => {
       const category = categorizeSymbol(symbol)
       const isPopular = POPULAR_INSTRUMENTS[category]?.includes(symbol) || false
+      const price = priceCache.get(symbol)
       return {
         symbol,
         name: getInstrumentName(symbol),
@@ -62,11 +77,12 @@ router.get('/instruments', async (req, res) => {
         minVolume: 0.01,
         maxVolume: 100,
         volumeStep: 0.01,
-        popular: isPopular
+        popular: isPopular,
+        hasPrice: !!price
       }
     })
     
-    console.log('[MetaApi] Returning', instruments.length, 'instruments with live prices')
+    console.log('[MetaApi] Returning', instruments.length, 'instruments')
     res.json({ success: true, instruments })
   } catch (error) {
     console.error('[MetaApi] Error fetching instruments:', error)
@@ -206,6 +222,26 @@ router.post('/batch', async (req, res) => {
   } catch (error) {
     console.error('[MetaApi] Error fetching batch prices:', error)
     res.status(500).json({ success: false, message: error.message })
+  }
+})
+
+// GET /api/prices/status - Get MetaApi connection status
+router.get('/status', async (req, res) => {
+  try {
+    const status = metaApiService.getConnectionStatus()
+    res.json({ 
+      success: true, 
+      ...status,
+      symbolCounts: {
+        forex: metaApiService.FOREX_SYMBOLS.length,
+        crypto: metaApiService.CRYPTO_SYMBOLS.length,
+        metals: metaApiService.METAL_SYMBOLS.length,
+        energy: metaApiService.ENERGY_SYMBOLS.length,
+        stocks: metaApiService.STOCK_SYMBOLS.length
+      }
+    })
+  } catch (error) {
+    res.json({ success: false, error: error.message })
   }
 })
 

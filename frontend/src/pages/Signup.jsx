@@ -314,8 +314,8 @@ const Signup = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/PipXcapital.png"
-            alt="PipXcapital Logo"
+            src="/Dioslogo.png"
+            alt="Dios Logo"
             className="h-12 w-auto object-contain"
           />
         </div>
