@@ -586,6 +586,20 @@ const AdminUserManagement = () => {
                   <p className="text-gray-500 text-xs mb-1">Email</p>
                   <p className="text-white">{selectedUser.email}</p>
                 </div>
+                {/* Last Login IP */}
+                <div className="bg-dark-700 p-3 rounded-lg">
+                  <p className="text-gray-500 text-xs mb-1">Last Login IP</p>
+                  {selectedUser.lastLoginIP ? (
+                    <div>
+                      <p className="text-cyan-400 font-mono">{selectedUser.lastLoginIP}</p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {selectedUser.lastLoginAt ? formatDate(selectedUser.lastLoginAt) : ''}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">Never logged in</p>
+                  )}
+                </div>
                 {/* Wallet Balance with Actions */}
                 <div className="bg-gradient-to-r from-green-500/10 to-teal-500/10 border border-green-500/30 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
@@ -1551,6 +1565,7 @@ const AdminUserManagement = () => {
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">User</th>
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Email</th>
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Phone</th>
+                <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Last Login IP</th>
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Balance</th>
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Status</th>
                 <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Joined</th>
@@ -1560,13 +1575,13 @@ const AdminUserManagement = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-8">
+                  <td colSpan="8" className="text-center py-8">
                     <RefreshCw size={24} className="text-gray-500 animate-spin mx-auto" />
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center py-8 text-gray-500">
+                  <td colSpan="8" className="text-center py-8 text-gray-500">
                     {searchTerm ? 'No users found matching your search' : 'No users registered yet'}
                   </td>
                 </tr>
@@ -1594,6 +1609,24 @@ const AdminUserManagement = () => {
                         <Phone size={14} />
                         <span>{user.phone || 'N/A'}</span>
                       </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      {user.lastLoginIP ? (
+                        <div className="text-sm">
+                          <div className="flex items-center gap-1 text-cyan-400">
+                            <span className="w-2 h-2 bg-cyan-400 rounded-full"></span>
+                            <span>{user.lastLoginIP}</span>
+                          </div>
+                          <span className="text-gray-500 text-xs">
+                            {user.lastLoginAt ? formatDate(user.lastLoginAt) : ''}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="text-sm">
+                          <span className="text-gray-500">—</span>
+                          <p className="text-gray-600 text-xs">Not logged in yet</p>
+                        </div>
+                      )}
                     </td>
                     <td className="py-4 px-4">
                       <button 

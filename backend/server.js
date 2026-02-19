@@ -37,7 +37,7 @@ import { fileURLToPath } from 'url'
 import copyTradingEngine from './services/copyTradingEngine.js'
 import tradeEngine from './services/tradeEngine.js'
 import propTradingEngine from './services/propTradingEngine.js'
-import metaApiService from './services/metaApiService.js'
+import infowayService from './services/infowayService.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -59,17 +59,13 @@ const io = new Server(httpServer, {
 const connectedClients = new Map()
 const priceSubscribers = new Set()
 
-// Price cache for real-time streaming (shared with MetaApi service)
-const priceCache = metaApiService.getPriceCache()
+// Price cache for real-time streaming (shared with Infoway service)
+const priceCache = infowayService.getPriceCache()
 
-// MetaApi handles all asset classes: Forex, Crypto, Metals, Energy, Stocks
-
-// MetaApi tick-by-tick price update handler - emit to frontend via Socket.IO
-metaApiService.setOnPriceUpdate((symbol, price) => {
+// Infoway tick-by-tick price update handler - emit to frontend via Socket.IO
+infowayService.setOnPriceUpdate((symbol, price) => {
   if (priceSubscribers.size > 0) {
-    // Emit individual price update for tick-to-tick
     io.to('prices').emit('priceUpdate', { symbol, price })
-    // Also emit as priceStream for compatibility (single symbol update)
     io.to('prices').emit('priceStream', {
       prices: { [symbol]: price },
       updated: { [symbol]: true },
@@ -78,13 +74,13 @@ metaApiService.setOnPriceUpdate((symbol, price) => {
   }
 })
 
-// MetaApi connection status handler
-metaApiService.setOnConnectionChange((connected) => {
-  console.log(`[MetaApi] ${connected ? 'Connected' : 'Disconnected'}`)
+// Infoway connection status handler
+infowayService.setOnConnectionChange((connected) => {
+  console.log(`[Infoway] ${connected ? 'Connected' : 'Disconnected'}`)
 })
 
-// Start MetaApi streaming connection
-metaApiService.connect()
+// Start Infoway streaming connection
+infowayService.connect()
 
 // Background stop-out check every 5 seconds
 setInterval(async () => {
@@ -133,7 +129,7 @@ io.on('connection', (socket) => {
     socket.join('prices')
     priceSubscribers.add(socket.id)
     socket.emit('priceStream', {
-      prices: Object.fromEntries(priceCache),
+      prices: {},
       updated: {},
       timestamp: Date.now()
     })

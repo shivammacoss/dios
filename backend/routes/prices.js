@@ -1,22 +1,45 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import express from 'express'
-import metaApiService from '../services/metaApiService.js'
+import infowayService from '../services/infowayService.js'
 
 const router = express.Router()
 
-// Popular instruments per category (shown by default - 15 max)
+// All supported symbols by category (Optimized for active symbols with reliable data)
+// FOREX: 20 most popular pairs
+const FOREX_SYMBOLS = [
+  'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'NZDUSD', 'USDCAD', 'EURGBP', 'EURJPY', 'GBPJPY',
+  'EURCHF', 'EURAUD', 'EURCAD', 'GBPAUD', 'GBPCAD', 'AUDCAD', 'AUDJPY', 'CADJPY', 'CHFJPY', 'NZDJPY'
+]
+// METALS: 4 main symbols
+const METAL_SYMBOLS = ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD']
+// ENERGY: Disabled
+const ENERGY_SYMBOLS = []
+// CRYPTO: 30 most popular (high liquidity)
+const CRYPTO_SYMBOLS = [
+  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT', 'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'LTCUSDT',
+  'LINKUSDT', 'SHIBUSDT', 'UNIUSDT', 'ATOMUSDT', 'TRXUSDT', 'BCHUSDT', 'XLMUSDT', 'ETCUSDT', 'NEARUSDT',
+  'AAVEUSDT', 'FTMUSDT', 'SANDUSDT', 'MANAUSDT', 'ARBUSDT', 'OPUSDT', 'SUIUSDT', 'APTUSDT', 'INJUSDT',
+  'FILUSDT', 'ICPUSDT', 'MKRUSDT'
+]
+// STOCKS: Disabled
+const STOCK_SYMBOLS = []
+
+// Popular instruments per category
 const POPULAR_INSTRUMENTS = {
   Forex: ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'NZDUSD', 'USDCAD', 'EURGBP', 'EURJPY', 'GBPJPY', 'EURCHF', 'EURAUD', 'AUDCAD', 'AUDJPY', 'CADJPY'],
-  Metals: ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD', 'XAUEUR', 'XAUAUD', 'XAUGBP', 'XAUCHF', 'XAUJPY', 'XAGEUR'],
-  Energy: ['USOIL', 'UKOIL', 'NGAS', 'BRENT', 'WTI', 'GASOLINE', 'HEATING'],
-  Crypto: ['BTCUSD', 'ETHUSD', 'BNBUSD', 'SOLUSD', 'XRPUSD', 'ADAUSD', 'DOGEUSD', 'DOTUSD', 'MATICUSD', 'LTCUSD', 'AVAXUSD', 'LINKUSD', 'SHIBUSD', 'UNIUSD', 'ATOMUSD'],
-  Stocks: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'JPM', 'V', 'JNJ', 'WMT', 'PG', 'MA', 'UNH', 'HD']
+  Metals: ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD'],
+  Crypto: ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT', 'ADAUSDT', 'DOGEUSDT', 'DOTUSDT', 'LTCUSDT', 'LINKUSDT', 'SHIBUSDT', 'UNIUSDT', 'ATOMUSDT', 'TRXUSDT', 'BCHUSDT']
 }
 
-// Use MetaApi service for categorization
+// Categorize symbol
 function categorizeSymbol(symbol) {
-  return metaApiService.categorizeSymbol(symbol)
+  if (FOREX_SYMBOLS.includes(symbol)) return 'Forex'
+  if (METAL_SYMBOLS.includes(symbol)) return 'Metals'
+  if (ENERGY_SYMBOLS.includes(symbol)) return 'Energy'
+  if (CRYPTO_SYMBOLS.includes(symbol)) return 'Crypto'
+  if (STOCK_SYMBOLS.includes(symbol)) return 'Stocks'
+  return 'Forex'
 }
 
 // Default instruments fallback
@@ -42,27 +65,29 @@ function getDefaultInstruments() {
 // GET /api/prices/instruments - Get all available instruments
 router.get('/instruments', async (req, res) => {
   try {
-    console.log('[MetaApi] Returning supported instruments')
+    console.log('[Prices] Returning supported instruments')
     
-    // Get price cache from MetaApi service
-    const priceCache = metaApiService.getPriceCache()
-    const symbolsWithPrices = Array.from(priceCache.keys())
+    // Get price cache to filter only symbols with live prices
+    const priceCache = infowayService.getPriceCache()
     
-    // If we have live prices, use those symbols
-    // Otherwise, return all supported symbols from fallback lists
-    let symbolsToReturn = symbolsWithPrices
+    // Return all supported symbols (excluding stocks - WS connection limit)
+    const allSymbols = [
+      ...FOREX_SYMBOLS,
+      ...METAL_SYMBOLS,
+      ...ENERGY_SYMBOLS,
+      ...CRYPTO_SYMBOLS
+    ]
     
-    if (symbolsToReturn.length === 0) {
-      // MetaApi not connected yet - return all supported symbols
-      console.log('[MetaApi] No live prices yet, returning all supported symbols')
-      symbolsToReturn = [
-        ...metaApiService.FOREX_SYMBOLS,
-        ...metaApiService.METAL_SYMBOLS,
-        ...metaApiService.ENERGY_SYMBOLS,
-        ...metaApiService.CRYPTO_SYMBOLS,
-        ...metaApiService.STOCK_SYMBOLS
-      ]
-    }
+    // Filter to only include symbols that have prices in cache
+    // Also exclude Energy/Commodities symbols
+    const symbolsWithPrices = allSymbols.filter(symbol => {
+      if (ENERGY_SYMBOLS.includes(symbol)) return false // Remove commodities
+      return priceCache.has(symbol)
+    })
+    
+    // If no prices yet, return popular instruments as fallback (excluding energy)
+    const fallbackSymbols = allSymbols.filter(s => !ENERGY_SYMBOLS.includes(s)).slice(0, 50)
+    const symbolsToReturn = symbolsWithPrices.length > 0 ? symbolsWithPrices : fallbackSymbols
     
     const instruments = symbolsToReturn.map(symbol => {
       const category = categorizeSymbol(symbol)
@@ -82,10 +107,10 @@ router.get('/instruments', async (req, res) => {
       }
     })
     
-    console.log('[MetaApi] Returning', instruments.length, 'instruments')
+    console.log('[Prices] Returning', instruments.length, 'instruments with prices')
     res.json({ success: true, instruments })
   } catch (error) {
-    console.error('[MetaApi] Error fetching instruments:', error)
+    console.error('[Prices] Error fetching instruments:', error)
     res.json({ success: true, instruments: getDefaultInstruments() })
   }
 })
@@ -109,19 +134,34 @@ function getInstrumentName(symbol) {
     'XAUUSD': 'Gold', 'XAGUSD': 'Silver', 'XPTUSD': 'Platinum', 'XPDUSD': 'Palladium',
     // Commodities
     'USOIL': 'US Oil', 'UKOIL': 'UK Oil', 'NGAS': 'Natural Gas', 'COPPER': 'Copper',
-    // Crypto
-    'BTCUSD': 'Bitcoin', 'ETHUSD': 'Ethereum', 'BNBUSD': 'BNB', 'SOLUSD': 'Solana',
-    'XRPUSD': 'XRP', 'ADAUSD': 'Cardano', 'DOGEUSD': 'Dogecoin', 'TRXUSD': 'TRON',
-    'LINKUSD': 'Chainlink', 'MATICUSD': 'Polygon', 'DOTUSD': 'Polkadot',
-    'SHIBUSD': 'Shiba Inu', 'LTCUSD': 'Litecoin', 'BCHUSD': 'Bitcoin Cash', 'AVAXUSD': 'Avalanche',
-    'XLMUSD': 'Stellar', 'UNIUSD': 'Uniswap', 'ATOMUSD': 'Cosmos', 'ETCUSD': 'Ethereum Classic',
-    'FILUSD': 'Filecoin', 'ICPUSD': 'Internet Computer', 'VETUSD': 'VeChain',
-    'NEARUSD': 'NEAR Protocol', 'GRTUSD': 'The Graph', 'AAVEUSD': 'Aave', 'MKRUSD': 'Maker',
-    'ALGOUSD': 'Algorand', 'FTMUSD': 'Fantom', 'SANDUSD': 'The Sandbox', 'MANAUSD': 'Decentraland',
-    'AXSUSD': 'Axie Infinity', 'THETAUSD': 'Theta Network', 'XMRUSD': 'Monero', 'FLOWUSD': 'Flow',
-    'SNXUSD': 'Synthetix', 'EOSUSD': 'EOS', 'CHZUSD': 'Chiliz', 'ENJUSD': 'Enjin Coin',
-    'PEPEUSD': 'Pepe', 'ARBUSD': 'Arbitrum', 'OPUSD': 'Optimism', 'SUIUSD': 'Sui',
-    'APTUSD': 'Aptos', 'INJUSD': 'Injective', 'TONUSD': 'Toncoin', 'HBARUSD': 'Hedera',
+    // Crypto (USDT pairs - Infoway format)
+    'BTCUSDT': 'Bitcoin', 'ETHUSDT': 'Ethereum', 'BNBUSDT': 'BNB', 'SOLUSDT': 'Solana',
+    'XRPUSDT': 'XRP', 'ADAUSDT': 'Cardano', 'DOGEUSDT': 'Dogecoin', 'TRXUSDT': 'TRON',
+    'LINKUSDT': 'Chainlink', 'MATICUSDT': 'Polygon', 'DOTUSDT': 'Polkadot',
+    'SHIBUSDT': 'Shiba Inu', 'LTCUSDT': 'Litecoin', 'BCHUSDT': 'Bitcoin Cash', 'AVAXUSDT': 'Avalanche',
+    'XLMUSDT': 'Stellar', 'UNIUSDT': 'Uniswap', 'ATOMUSDT': 'Cosmos', 'ETCUSDT': 'Ethereum Classic',
+    'FILUSDT': 'Filecoin', 'ICPUSDT': 'Internet Computer', 'NEARUSDT': 'NEAR Protocol',
+    'GRTUSDT': 'The Graph', 'AAVEUSDT': 'Aave', 'MKRUSDT': 'Maker', 'FTMUSDT': 'Fantom',
+    'SANDUSDT': 'The Sandbox', 'MANAUSDT': 'Decentraland', 'AXSUSDT': 'Axie Infinity',
+    'XMRUSDT': 'Monero', 'SNXUSDT': 'Synthetix', 'CHZUSDT': 'Chiliz', 'ARBUSDT': 'Arbitrum',
+    'OPUSDT': 'Optimism', 'SUIUSDT': 'Sui', 'APTUSDT': 'Aptos', 'INJUSDT': 'Injective',
+    'IMXUSDT': 'Immutable X', 'LDOUSDT': 'Lido DAO', 'RNDRUSDT': 'Render',
+    'ACEUSDT': 'ACE', 'AIUSDT': 'Fetch.ai', 'APEUSDT': 'ApeCoin', 'API3USDT': 'API3',
+    'ARKUSDT': 'ARK', 'ASTRUSDT': 'Astar', 'AUCTIONUSDT': 'Bounce', 'BAKEUSDT': 'BakerySwap',
+    'BARUSDT': 'FC Barcelona', 'BLURUSDT': 'Blur', 'BLZUSDT': 'Bluzelle', 'BONDUSDT': 'BarnBridge',
+    'CAKEUSDT': 'PancakeSwap', 'CFXUSDT': 'Conflux', 'CRVUSDT': 'Curve', 'CTSIUSDT': 'Cartesi',
+    'DUSKUSDT': 'Dusk', 'DYDXUSDT': 'dYdX', 'EGLDUSDT': 'MultiversX', 'ENSUSDT': 'ENS',
+    'FETUSDT': 'Fetch.ai', 'FORTHUSDT': 'Ampleforth', 'FTTUSDT': 'FTX Token', 'FXSUSDT': 'Frax Share',
+    'GMTUSDT': 'STEPN', 'JTOUSDT': 'Jito', 'KAVAUSDT': 'Kava', 'KLAYUSDT': 'Klaytn',
+    'MAGICUSDT': 'Magic', 'MANTAUSDT': 'Manta', 'MASKUSDT': 'Mask Network', 'MAVUSDT': 'Maverick',
+    'MINAUSDT': 'Mina', 'MOVRUSDT': 'Moonriver', 'MULTIUSDT': 'Multichain', 'NFPUSDT': 'NFPrompt',
+    'NTRNUSDT': 'Neutron', 'OAXUSDT': 'OAX', 'OMUSDT': 'MANTRA', 'ORDIUSDT': 'ORDI',
+    'PENDLEUSDT': 'Pendle', 'PHBUSDT': 'Phoenix', 'RDNTUSDT': 'Radiant', 'RLCUSDT': 'iExec',
+    'RONINUSDT': 'Ronin', 'ROSEUSDT': 'Oasis', 'RUNEUSDT': 'THORChain', 'SANTOSUSDT': 'Santos FC',
+    'SEIUSDT': 'Sei', 'SSVUSDT': 'SSV Network', 'STXUSDT': 'Stacks', 'SYNUSDT': 'Synapse',
+    'TIAUSDT': 'Celestia', 'TRBUSDT': 'Tellor', 'TUSDUSDT': 'TrueUSD', 'UMAUSDT': 'UMA',
+    'USDCUSDT': 'USD Coin', 'VGXUSDT': 'Voyager', 'WBTCUSDT': 'Wrapped BTC', 'WLDUSDT': 'Worldcoin',
+    'WOOUSDT': 'WOO Network', 'XAIUSDT': 'Xai', 'XAUTUSDT': 'Tether Gold',
     // Commodities
     'GASOLINE': 'Gasoline', 'CATTLE': 'Live Cattle', 'COCOA': 'Cocoa', 'COFFEE': 'Coffee', 'CORN': 'Corn', 'COTTON': 'Cotton', 'ALUMINUM': 'Aluminum',
     // Indices
@@ -156,24 +196,11 @@ function getContractSize(symbol) {
   return 100000 // Forex default
 }
 
-// GET /api/prices/:symbol - Get single symbol price
+// GET /api/prices/:symbol - Get single symbol price from Infoway
 router.get('/:symbol', async (req, res) => {
   try {
     const { symbol } = req.params
-    const SYMBOL_MAP = metaApiService.SYMBOL_MAP
-    
-    // Check if symbol is supported (allow any symbol, will return null if not available)
-    if (!SYMBOL_MAP[symbol] && !symbol) {
-      return res.status(404).json({ success: false, message: `Symbol ${symbol} not supported` })
-    }
-    
-    // Try to get from cache first
-    let price = metaApiService.getPrice(symbol)
-    
-    // If not in cache, fetch from terminal state
-    if (!price) {
-      price = await metaApiService.fetchPriceREST(symbol)
-    }
+    const price = infowayService.getPrice(symbol)
     
     if (price) {
       res.json({ success: true, price: { bid: price.bid, ask: price.ask } })
@@ -181,12 +208,12 @@ router.get('/:symbol', async (req, res) => {
       res.status(404).json({ success: false, message: 'Price not available' })
     }
   } catch (error) {
-    console.error('[MetaApi] Error fetching price:', error)
+    console.error('[Prices] Error fetching price:', error)
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// POST /api/prices/batch - Get multiple symbol prices
+// POST /api/prices/batch - Get multiple symbol prices from Infoway
 router.post('/batch', async (req, res) => {
   try {
     const { symbols } = req.body
@@ -194,55 +221,35 @@ router.post('/batch', async (req, res) => {
       return res.status(400).json({ success: false, message: 'symbols array required' })
     }
     
-    const SYMBOL_MAP = metaApiService.SYMBOL_MAP
     const prices = {}
-    const missingSymbols = []
-    
-    // Get prices from cache first
     for (const symbol of symbols) {
-      // Allow any symbol, not just mapped ones
-      
-      const cached = metaApiService.getPrice(symbol)
-      if (cached) {
-        prices[symbol] = { bid: cached.bid, ask: cached.ask }
-      } else {
-        missingSymbols.push(symbol)
-      }
-    }
-    
-    // Fetch missing prices from terminal state
-    if (missingSymbols.length > 0) {
-      const batchPrices = await metaApiService.fetchBatchPricesREST(missingSymbols)
-      for (const [symbol, price] of Object.entries(batchPrices)) {
+      const price = infowayService.getPrice(symbol)
+      if (price) {
         prices[symbol] = { bid: price.bid, ask: price.ask }
       }
     }
     
     res.json({ success: true, prices })
   } catch (error) {
-    console.error('[MetaApi] Error fetching batch prices:', error)
+    console.error('[Prices] Error fetching batch prices:', error)
     res.status(500).json({ success: false, message: error.message })
   }
 })
 
-// GET /api/prices/status - Get MetaApi connection status
+// GET /api/prices/status - Get Infoway connection status
 router.get('/status', async (req, res) => {
-  try {
-    const status = metaApiService.getConnectionStatus()
-    res.json({ 
-      success: true, 
-      ...status,
-      symbolCounts: {
-        forex: metaApiService.FOREX_SYMBOLS.length,
-        crypto: metaApiService.CRYPTO_SYMBOLS.length,
-        metals: metaApiService.METAL_SYMBOLS.length,
-        energy: metaApiService.ENERGY_SYMBOLS.length,
-        stocks: metaApiService.STOCK_SYMBOLS.length
-      }
-    })
-  } catch (error) {
-    res.json({ success: false, error: error.message })
-  }
+  const status = infowayService.getConnectionStatus()
+  res.json({ 
+    success: true, 
+    ...status,
+    symbolCounts: {
+      forex: FOREX_SYMBOLS.length,
+      crypto: CRYPTO_SYMBOLS.length,
+      metals: METAL_SYMBOLS.length,
+      energy: ENERGY_SYMBOLS.length,
+      stocks: STOCK_SYMBOLS.length
+    }
+  })
 })
 
 export default router

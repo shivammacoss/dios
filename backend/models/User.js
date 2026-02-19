@@ -137,7 +137,23 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: {
     type: Date,
     default: null
-  }
+  },
+  
+  // IP Tracking
+  lastLoginIP: {
+    type: String,
+    default: null
+  },
+  lastLoginAt: {
+    type: Date,
+    default: null
+  },
+  loginHistory: [{
+    ip: String,
+    timestamp: { type: Date, default: Date.now },
+    userAgent: String,
+    location: String
+  }]
 })
 
 // Hash password before saving

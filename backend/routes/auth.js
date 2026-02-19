@@ -257,6 +257,39 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' })
     }
 
+    // Capture IP address
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+                     req.headers['x-real-ip'] || 
+                     req.connection?.remoteAddress || 
+                     req.socket?.remoteAddress ||
+                     req.ip ||
+                     '127.0.0.1'
+    const userAgent = req.headers['user-agent'] || 'Unknown'
+    
+    console.log(`[Login] User ${user.email} logged in from IP: ${clientIP}`)
+    
+    // Update user's last login IP and add to login history
+    user.lastLoginIP = clientIP
+    user.lastLoginAt = new Date()
+    
+    // Add to login history (keep last 10 entries)
+    if (!user.loginHistory) user.loginHistory = []
+    user.loginHistory.unshift({
+      ip: clientIP,
+      timestamp: new Date(),
+      userAgent: userAgent
+    })
+    if (user.loginHistory.length > 10) {
+      user.loginHistory = user.loginHistory.slice(0, 10)
+    }
+    
+    try {
+      await user.save({ validateBeforeSave: false })
+      console.log(`[Login] IP saved successfully for ${user.email}`)
+    } catch (saveErr) {
+      console.error(`[Login] Error saving IP:`, saveErr.message)
+    }
+
     // Generate token
     const token = generateToken(user._id)
 

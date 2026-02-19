@@ -110,7 +110,7 @@ const TradingPage = () => {
   const [killSwitchTimeLeft, setKillSwitchTimeLeft] = useState('')
   const [globalNotification, setGlobalNotification] = useState('')
 
-  const categories = ['All', 'Starred', 'Forex', 'Metals', 'Commodities', 'Crypto']
+  const categories = ['All', 'Starred', 'Forex', 'Metals', 'Crypto']
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
@@ -1077,8 +1077,24 @@ const TradingPage = () => {
   const getSymbolForTradingView = (symbol) => {
     if (!symbol) return 'OANDA:XAUUSD'
     
-    // Crypto mappings - use BINANCE with USDT pairs for best coverage
+    // Crypto mappings - support both USDT pairs (Infoway format) and USD pairs
     const cryptoMap = {
+      // USDT pairs (Infoway API format)
+      'BTCUSDT': 'BINANCE:BTCUSDT', 'ETHUSDT': 'BINANCE:ETHUSDT', 'BNBUSDT': 'BINANCE:BNBUSDT',
+      'SOLUSDT': 'BINANCE:SOLUSDT', 'XRPUSDT': 'BINANCE:XRPUSDT', 'ADAUSDT': 'BINANCE:ADAUSDT',
+      'DOGEUSDT': 'BINANCE:DOGEUSDT', 'TRXUSDT': 'BINANCE:TRXUSDT', 'LINKUSDT': 'BINANCE:LINKUSDT',
+      'MATICUSDT': 'BINANCE:MATICUSDT', 'DOTUSDT': 'BINANCE:DOTUSDT', 'SHIBUSDT': 'BINANCE:SHIBUSDT',
+      'LTCUSDT': 'BINANCE:LTCUSDT', 'BCHUSDT': 'BINANCE:BCHUSDT', 'AVAXUSDT': 'BINANCE:AVAXUSDT',
+      'XLMUSDT': 'BINANCE:XLMUSDT', 'UNIUSDT': 'BINANCE:UNIUSDT', 'ATOMUSDT': 'BINANCE:ATOMUSDT',
+      'ETCUSDT': 'BINANCE:ETCUSDT', 'FILUSDT': 'BINANCE:FILUSDT', 'ICPUSDT': 'BINANCE:ICPUSDT',
+      'NEARUSDT': 'BINANCE:NEARUSDT', 'GRTUSDT': 'BINANCE:GRTUSDT', 'AAVEUSDT': 'BINANCE:AAVEUSDT',
+      'MKRUSDT': 'BINANCE:MKRUSDT', 'FTMUSDT': 'BINANCE:FTMUSDT', 'SANDUSDT': 'BINANCE:SANDUSDT',
+      'MANAUSDT': 'BINANCE:MANAUSDT', 'AXSUSDT': 'BINANCE:AXSUSDT', 'XMRUSDT': 'BINANCE:XMRUSDT',
+      'SNXUSDT': 'BINANCE:SNXUSDT', 'CHZUSDT': 'BINANCE:CHZUSDT', 'ARBUSDT': 'BINANCE:ARBUSDT',
+      'OPUSDT': 'BINANCE:OPUSDT', 'SUIUSDT': 'BINANCE:SUIUSDT', 'APTUSDT': 'BINANCE:APTUSDT',
+      'INJUSDT': 'BINANCE:INJUSDT', 'IMXUSDT': 'BINANCE:IMXUSDT', 'LDOUSDT': 'BINANCE:LDOUSDT',
+      'RNDRUSDT': 'BINANCE:RNDRUSDT',
+      // Legacy USD pairs (for backward compatibility)
       'BTCUSD': 'BINANCE:BTCUSDT', 'ETHUSD': 'BINANCE:ETHUSDT', 'BNBUSD': 'BINANCE:BNBUSDT',
       'SOLUSD': 'BINANCE:SOLUSDT', 'XRPUSD': 'BINANCE:XRPUSDT', 'ADAUSD': 'BINANCE:ADAUSDT',
       'DOGEUSD': 'BINANCE:DOGEUSDT', 'TRXUSD': 'BINANCE:TRXUSDT', 'LINKUSD': 'BINANCE:LINKUSDT',
@@ -1086,16 +1102,10 @@ const TradingPage = () => {
       'LTCUSD': 'BINANCE:LTCUSDT', 'BCHUSD': 'BINANCE:BCHUSDT', 'AVAXUSD': 'BINANCE:AVAXUSDT',
       'XLMUSD': 'BINANCE:XLMUSDT', 'UNIUSD': 'BINANCE:UNIUSDT', 'ATOMUSD': 'BINANCE:ATOMUSDT',
       'ETCUSD': 'BINANCE:ETCUSDT', 'FILUSD': 'BINANCE:FILUSDT', 'ICPUSD': 'BINANCE:ICPUSDT',
-      'VETUSD': 'BINANCE:VETUSDT', 'NEARUSD': 'BINANCE:NEARUSDT', 'GRTUSD': 'BINANCE:GRTUSDT',
-      'AAVEUSD': 'BINANCE:AAVEUSDT', 'MKRUSD': 'BINANCE:MKRUSDT', 'ALGOUSD': 'BINANCE:ALGOUSDT',
-      'FTMUSD': 'BINANCE:FTMUSDT', 'SANDUSD': 'BINANCE:SANDUSDT', 'MANAUSD': 'BINANCE:MANAUSDT',
-      'AXSUSD': 'BINANCE:AXSUSDT', 'THETAUSD': 'BINANCE:THETAUSDT', 'XMRUSD': 'BINANCE:XMRUSDT',
-      'FLOWUSD': 'BINANCE:FLOWUSDT', 'SNXUSD': 'BINANCE:SNXUSDT', 'EOSUSD': 'BINANCE:EOSUSDT',
-      'CHZUSD': 'BINANCE:CHZUSDT', 'ENJUSD': 'BINANCE:ENJUSDT', 'ZILUSD': 'BINANCE:ZILUSDT',
-      'BATUSD': 'BINANCE:BATUSDT', 'CRVUSD': 'BINANCE:CRVUSDT', 'COMPUSD': 'BINANCE:COMPUSDT',
-      'SUSHIUSD': 'BINANCE:SUSHIUSDT', 'ZRXUSD': 'BINANCE:ZRXUSDT', 'LRCUSD': 'BINANCE:LRCUSDT',
-      'ANKRUSD': 'BINANCE:ANKRUSDT', 'GALAUSD': 'BINANCE:GALAUSDT', 'APEUSD': 'BINANCE:APEUSDT',
-      'WAVESUSD': 'BINANCE:WAVESUSDT', 'ZECUSD': 'BINANCE:ZECUSDT',
+      'NEARUSD': 'BINANCE:NEARUSDT', 'GRTUSD': 'BINANCE:GRTUSDT', 'AAVEUSD': 'BINANCE:AAVEUSDT',
+      'MKRUSD': 'BINANCE:MKRUSDT', 'FTMUSD': 'BINANCE:FTMUSDT', 'SANDUSD': 'BINANCE:SANDUSDT',
+      'MANAUSD': 'BINANCE:MANAUSDT', 'AXSUSD': 'BINANCE:AXSUSDT', 'XMRUSD': 'BINANCE:XMRUSDT',
+      'SNXUSD': 'BINANCE:SNXUSDT', 'CHZUSD': 'BINANCE:CHZUSDT',
     }
     
     if (cryptoMap[symbol]) return cryptoMap[symbol]
@@ -1455,8 +1465,7 @@ const TradingPage = () => {
               </div>
               
               {/* Footer */}
-              <div className={`px-3 py-2 border-t flex items-center justify-between shrink-0 ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
-                <span className="text-gray-500 text-xs">{filteredInstruments.length} instruments</span>
+              <div className={`px-3 py-2 border-t flex items-center justify-end shrink-0 ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-green-500 text-xs">Live</span>
