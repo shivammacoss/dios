@@ -139,6 +139,9 @@ export const ThemeProvider = ({ children }) => {
       applyTheme, 
       isDarkMode, 
       toggleDarkMode,
+      // Aliases for landing page components compatibility
+      isDark: isDarkMode,
+      toggleTheme: toggleDarkMode,
       modeColors,
       darkColors,
       lightColors
