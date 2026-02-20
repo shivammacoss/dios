@@ -4,9 +4,20 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        burgundy: {
+          DEFAULT: '#6c0e2a',
+          dark: '#4a0a1d',
+          light: '#8a1236',
+        },
+        crimson: {
+          DEFAULT: '#d41a33',
+          dark: '#a31428',
+          light: '#e85d75',
+        },
         dark: {
           900: 'var(--theme-bgPrimary, #0a0a0a)',
           800: 'var(--theme-bgSecondary, #111111)',

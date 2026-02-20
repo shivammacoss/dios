@@ -123,6 +123,26 @@ body {
   background: #6b7280;
 }
 
+/* Landing Page Styles */
+@layer components {
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-burgundy to-crimson;
+  }
+  
+  .glass-effect {
+    @apply bg-white/60 backdrop-blur-xl border-b border-white/30 shadow-lg;
+  }
+
+  .dark .glass-effect {
+    @apply bg-gray-900/70 backdrop-blur-xl border-b border-white/10;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-burgundy to-crimson text-white font-semibold rounded-full 
+           shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300;
+  }
+}
+
 /* Mobile animations */
 @keyframes slide-up {
   from {
