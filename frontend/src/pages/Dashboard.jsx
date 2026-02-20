@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { API_URL } from '../config/api'
-import logoImage from '../assets/Dioslogo.png'
+import logoImage from '../assets/Dioslogo.jpeg'
 import BannerSlider from '../components/BannerSlider'
 
 const Dashboard = () => {

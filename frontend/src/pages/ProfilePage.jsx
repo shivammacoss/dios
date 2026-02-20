@@ -38,7 +38,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { API_URL } from '../config/api'
-import logoImage from '../assets/Dioslogo.png'
+import logoImage from '../assets/Dioslogo.jpeg'
 
 const ProfilePage = () => {
   const navigate = useNavigate()

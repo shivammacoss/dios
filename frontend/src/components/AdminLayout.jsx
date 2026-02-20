@@ -26,7 +26,7 @@ import {
   Image,
   User
 } from 'lucide-react'
-import logoImage from '../assets/Dioslogo.png'
+import logoImage from '../assets/Dioslogo.jpeg'
 
 const AdminLayout = ({ children, title, subtitle }) => {
   const navigate = useNavigate()
