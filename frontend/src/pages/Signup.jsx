@@ -296,17 +296,18 @@ const Signup = () => {
   }, [otpVerified])
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden">
       {/* Background gradient effects */}
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-l from-orange-500/20 via-purple-500/20 to-transparent rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-r from-burgundy/20 to-transparent rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-l from-crimson/20 via-burgundy/20 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-burgundy/10 rounded-full blur-3xl" />
       
       {/* Modal */}
-      <div className="relative bg-dark-700 rounded-2xl p-6 sm:p-8 w-full max-w-md border border-gray-800 mx-4 sm:mx-0">
+      <div className="relative bg-gray-900 rounded-2xl p-6 sm:p-8 w-full max-w-md border border-gray-800 mx-4 sm:mx-0 shadow-2xl shadow-burgundy/10">
         {/* Close button */}
         <button 
           onClick={() => navigate('/')}
-          className="absolute top-4 right-4 w-8 h-8 bg-dark-600 rounded-full flex items-center justify-center hover:bg-dark-500 transition-colors"
+          className="absolute top-4 right-4 w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
         >
           <X size={16} className="text-gray-400" />
         </button>
@@ -321,11 +322,11 @@ const Signup = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-dark-600 rounded-full p-1 w-fit mb-8">
+        <div className="flex bg-gray-800 rounded-full p-1 w-fit mb-8">
           <button
             onClick={() => setActiveTab('signup')}
             className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'signup' ? 'bg-dark-500 text-white' : 'text-gray-400 hover:text-white'
+              activeTab === 'signup' ? 'bg-gradient-to-r from-burgundy to-crimson text-white' : 'text-gray-400 hover:text-white'
             }`}
           >
             Sign up
@@ -363,7 +364,7 @@ const Signup = () => {
               value={otp}
               onChange={(e) => { setOtp(e.target.value.replace(/\D/g, '').slice(0, 6)); setError('') }}
               maxLength={6}
-              className="w-full bg-dark-600 border border-gray-700 rounded-lg px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white text-center text-2xl tracking-widest placeholder-gray-500 focus:outline-none focus:border-burgundy/50 transition-colors"
             />
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -371,7 +372,7 @@ const Signup = () => {
             <button
               onClick={handleVerifyOtp}
               disabled={verifyingOtp || otp.length !== 6}
-              className="w-full bg-white text-black font-medium py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-burgundy to-crimson text-white font-medium py-3 rounded-full hover:from-burgundy-dark hover:to-crimson-dark transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-burgundy/25"
             >
               {verifyingOtp ? <><RefreshCw size={16} className="animate-spin" /> Verifying...</> : 'Verify OTP'}
             </button>
@@ -394,7 +395,7 @@ const Signup = () => {
               placeholder="Enter your name"
               value={formData.firstName}
               onChange={handleChange}
-              className="w-full bg-dark-600 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-burgundy/50 transition-colors"
             />
 
             {/* Email field */}
@@ -406,7 +407,7 @@ const Signup = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-dark-600 border border-gray-700 rounded-lg pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-burgundy/50 transition-colors"
               />
               </div>
 
@@ -415,7 +416,7 @@ const Signup = () => {
               <button
                 type="button"
                 onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                className="flex items-center gap-1 sm:gap-2 bg-dark-600 border border-gray-700 rounded-l-lg px-2 sm:px-3 py-3 border-r-0 hover:bg-dark-500 transition-colors min-w-[70px] sm:min-w-[90px]"
+                className="flex items-center gap-1 sm:gap-2 bg-gray-800 border border-gray-700 rounded-l-lg px-2 sm:px-3 py-3 border-r-0 hover:bg-gray-700 transition-colors min-w-[70px] sm:min-w-[90px]"
               >
                 <span className="text-base sm:text-lg">{selectedCountry.flag}</span>
                 <span className="text-gray-400 text-xs sm:text-sm hidden sm:inline">{selectedCountry.code}</span>
@@ -424,7 +425,7 @@ const Signup = () => {
               
               {/* Country Dropdown */}
               {showCountryDropdown && (
-                <div className="absolute top-full left-0 mt-1 w-64 sm:w-72 bg-dark-600 border border-gray-700 rounded-lg shadow-xl z-50 max-h-64 overflow-hidden">
+                <div className="absolute top-full left-0 mt-1 w-64 sm:w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-64 overflow-hidden">
                   {/* Search */}
                   <div className="p-2 border-b border-gray-700">
                     <div className="relative">
@@ -434,7 +435,7 @@ const Signup = () => {
                         placeholder="Search country..."
                         value={countrySearch}
                         onChange={(e) => setCountrySearch(e.target.value)}
-                        className="w-full bg-dark-700 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-gray-600"
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-burgundy/50"
                       />
                     </div>
                   </div>
@@ -445,7 +446,7 @@ const Signup = () => {
                         key={`${country.code}-${index}`}
                         type="button"
                         onClick={() => handleCountrySelect(country)}
-                        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-dark-500 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-700 transition-colors text-left"
                       >
                         <span className="text-lg">{country.flag}</span>
                         <span className="text-white text-sm flex-1">{country.name}</span>
@@ -465,7 +466,7 @@ const Signup = () => {
                 placeholder="Enter phone number"
                 value={formData.phone}
                 onChange={handleChange}
-                className="flex-1 bg-dark-600 border border-gray-700 rounded-r-lg px-3 sm:px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors min-w-0"
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-r-lg px-3 sm:px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-burgundy/50 transition-colors min-w-0"
               />
             </div>
 
@@ -477,7 +478,7 @@ const Signup = () => {
                 placeholder="Create password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-dark-600 border border-gray-700 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 pr-12 text-white placeholder-gray-500 focus:outline-none focus:border-burgundy/50 transition-colors"
               />
               <button
                 type="button"
@@ -497,7 +498,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-black font-medium py-3 rounded-lg hover:bg-gray-100 transition-colors mt-2 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-burgundy to-crimson text-white font-medium py-3 rounded-full hover:from-burgundy-dark hover:to-crimson-dark transition-all mt-2 disabled:opacity-50 shadow-lg shadow-burgundy/25"
             >
               {loading ? 'Creating account...' : 'Create an account'}
             </button>
@@ -507,7 +508,7 @@ const Signup = () => {
         {/* Terms */}
         <p className="text-center text-gray-500 text-sm mt-6">
           By creating an account, you agree to our{' '}
-          <a href="#" className="text-white hover:underline">Terms & Service</a>
+          <a href="#" className="text-crimson-light hover:text-white transition-colors">Terms & Service</a>
         </p>
       </div>
     </div>

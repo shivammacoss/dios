@@ -175,3 +175,104 @@ body {
     scrollbar-width: none;
   }
 }
+
+/* ============================================
+   Landing Page Styles
+   ============================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-burgundy to-crimson;
+  }
+  
+  /* Glass Effect - Light */
+  .glass-effect {
+    @apply bg-white/60 backdrop-blur-xl border-b border-white/30 shadow-lg shadow-black/5;
+  }
+
+  /* Glass Effect - Dark */
+  .dark .glass-effect {
+    @apply bg-gray-900/70 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-burgundy to-crimson text-white font-semibold rounded-full 
+           shadow-lg shadow-burgundy/25 hover:shadow-xl hover:shadow-burgundy/30 
+           transform hover:-translate-y-0.5 transition-all duration-300;
+  }
+  
+  /* Secondary Button */
+  .btn-secondary {
+    @apply px-6 py-3 bg-white text-gray-700 font-semibold rounded-full border-2 border-gray-200 
+           hover:border-burgundy hover:text-burgundy shadow-md hover:shadow-lg 
+           transform hover:-translate-y-0.5 transition-all duration-300;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-gray-800 text-gray-200 border-gray-700 hover:border-burgundy hover:text-crimson-light;
+  }
+}
+
+@layer utilities {
+  /* Animation Delays */
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+  .animate-delay-1000 {
+    animation-delay: 1000ms;
+  }
+  .animate-delay-2000 {
+    animation-delay: 2000ms;
+  }
+}
+
+/* Landing Page Custom Scrollbar - Light */
+.landing-page ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.landing-page ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.landing-page ::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6c0e2a, #d41a33);
+  border-radius: 4px;
+}
+
+.landing-page ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #4a0a1d, #a31428);
+}
+
+/* Landing Page Custom Scrollbar - Dark */
+.dark .landing-page ::-webkit-scrollbar-track {
+  background: #1a1a2e;
+}
+
+/* Selection Color for Landing Page */
+.landing-page ::selection {
+  background: rgba(108, 14, 42, 0.2);
+  color: #6c0e2a;
+}
+
+.dark .landing-page ::selection {
+  background: rgba(212, 26, 51, 0.3);
+  color: #e85d75;
+}
