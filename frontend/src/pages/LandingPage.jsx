@@ -215,7 +215,7 @@ function Hero() {
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
         <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" poster="/DiosDerivativelogowhite.png">
-          <source src="/dvideo.mp4" type="video/mp4" />
+          <source src="/dioswebvideo.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-[linear-gradient(rgba(108,14,42,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(108,14,42,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       </div>

@@ -70,7 +70,7 @@ const Login = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/Dioslogo.png"
+            src="/DiosDerivativelogowhite.png"
             alt="Dios Logo"
             className="h-12 w-auto object-contain"
           />
