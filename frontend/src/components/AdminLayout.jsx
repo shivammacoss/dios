@@ -135,7 +135,7 @@ const AdminLayout = ({ children, title, subtitle }) => {
         {/* Logo */}
         <div className="p-4 flex items-center justify-between border-b border-gray-800">
           <div className="flex items-center gap-2">
-            <img src="/DiosDerivativelogowhite.png" alt="Dios" className="h-8 w-auto object-contain flex-shrink-0" />
+            <img src="/DiosDerivativewithoutsloganwhite.png" alt="Dios" className="h-8 w-auto object-contain flex-shrink-0" />
           </div>
           <button 
             onClick={() => setSidebarExpanded(!sidebarExpanded)}

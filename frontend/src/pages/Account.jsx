@@ -582,7 +582,7 @@ const Account = () => {
           onMouseLeave={() => setSidebarExpanded(false)}
         >
           <div className="p-4 flex items-center justify-center shrink-0">
-            <img src={isDarkMode ? "/DiosDerivativelogowhite.png" : "/DiosDerivativelogodark.png"} alt="Dios" className="h-8 w-auto object-contain" />
+            <img src={isDarkMode ? "/DiosDerivativewithoutsloganwhite.png" : "/DiosDerivativewithoutsloganblack.png"} alt="Dios" className="h-8 w-auto object-contain" />
           </div>
 
           <nav className="flex-1 px-2 overflow-y-auto">

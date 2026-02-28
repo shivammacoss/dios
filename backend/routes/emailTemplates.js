@@ -826,7 +826,7 @@ router.post('/settings/send-test', async (req, res) => {
       }
     })
 
-    const logoUrl = process.env.LOGO_URL || 'https://diosderivative.com/DiosDerivativelogowhite.png'
+    const logoUrl = process.env.LOGO_URL || 'https://diosderivative.com/DiosDerivativewithslogapng.png'
     const mailOptions = {
       from: '"' + settings.fromName + '" <' + settings.fromEmail + '>',
       to: toEmail,
