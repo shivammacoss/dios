@@ -62,7 +62,7 @@ function Navbar() {
             whileTap={{ scale: 0.95 }}
           >
             <img 
-              src="/DiosDerivativewithslogapng.png" 
+              src={isDarkMode ? "/DiosDerivativewithoutsloganwhite.png" : "/DiosDerivativewithoutsloganblack.png"} 
               alt="Dios Derivatives" 
               className="h-12 w-auto object-contain"
             />
