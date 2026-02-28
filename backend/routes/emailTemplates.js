@@ -13,7 +13,7 @@ const defaultTemplates = [
     subject: 'Verify Your Email - {{otp}}',
     description: 'Sent when a user registers to verify their email with OTP',
     category: 'verification',
-    variables: ['otp', 'firstName', 'email', 'expiryMinutes', 'platformName', 'supportEmail', 'year'],
+    variables: ['otp', 'firstName', 'email', 'expiryMinutes', 'platformName', 'supportEmail', 'year', 'logoUrl'],
     htmlContent: `<!DOCTYPE html>
 <html>
 <head>
@@ -24,6 +24,7 @@ const defaultTemplates = [
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333;">
       <div style="text-align: center; margin-bottom: 30px;">
+        <img src="{{logoUrl}}" alt="{{platformName}}" style="height: 50px; width: auto; margin-bottom: 15px;" />
         <h1 style="color: #fff; margin: 0; font-size: 24px;">{{platformName}}</h1>
       </div>
       <h2 style="color: #fff; margin: 0 0 20px; font-size: 20px;">Verify Your Email</h2>
@@ -825,11 +826,12 @@ router.post('/settings/send-test', async (req, res) => {
       }
     })
 
+    const logoUrl = process.env.LOGO_URL || 'https://diosderivative.com/DiosDerivativelogowhite.png'
     const mailOptions = {
       from: '"' + settings.fromName + '" <' + settings.fromEmail + '>',
       to: toEmail,
       subject: 'Test Email - SMTP Configuration Working!',
-      html: '<!DOCTYPE html><html><body style="margin: 0; padding: 40px; background-color: #0a0a0a; font-family: Arial, sans-serif;"><div style="max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333;"><h1 style="color: #22c55e; margin: 0 0 20px; text-align: center;">✓ Test Successful!</h1><p style="color: #aaa; margin: 0 0 20px; line-height: 1.6; text-align: center;">Your SMTP configuration is working correctly.</p><div style="background: #0f0f23; border-radius: 8px; padding: 15px; margin-bottom: 20px;"><p style="color: #888; margin: 0 0 5px; font-size: 12px;">SMTP Host</p><p style="color: #fff; margin: 0;">' + settings.smtpHost + ':' + settings.smtpPort + '</p></div><p style="color: #666; font-size: 12px; margin: 0; text-align: center;">Sent at ' + new Date().toLocaleString() + '</p></div></body></html>'
+      html: '<!DOCTYPE html><html><body style="margin: 0; padding: 40px; background-color: #0a0a0a; font-family: Arial, sans-serif;"><div style="max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #333;"><div style="text-align: center; margin-bottom: 20px;"><img src="' + logoUrl + '" alt="' + settings.fromName + '" style="height: 50px; width: auto;" /></div><h1 style="color: #22c55e; margin: 0 0 20px; text-align: center;">✓ Test Successful!</h1><p style="color: #aaa; margin: 0 0 20px; line-height: 1.6; text-align: center;">Your SMTP configuration is working correctly.</p><div style="background: #0f0f23; border-radius: 8px; padding: 15px; margin-bottom: 20px;"><p style="color: #888; margin: 0 0 5px; font-size: 12px;">SMTP Host</p><p style="color: #fff; margin: 0;">' + settings.smtpHost + ':' + settings.smtpPort + '</p></div><p style="color: #666; font-size: 12px; margin: 0; text-align: center;">Sent at ' + new Date().toLocaleString() + '</p></div></body></html>'
     }
 
     await transporter.sendMail(mailOptions)

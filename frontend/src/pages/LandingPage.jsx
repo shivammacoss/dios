@@ -11,6 +11,7 @@ import {
   Twitter, Linkedin, Instagram, Phone, ChevronDown, Download
 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import priceStreamService from '../services/priceStream'
 
 // ============== SCROLL PROGRESS ==============
 function ScrollProgress() {
@@ -198,17 +199,56 @@ function Navbar() {
 }
 
 // ============== HERO ==============
-const trades = [
-  { pair: 'EUR/USD', price: '1.0845', change: '+0.12%', up: true },
-  { pair: 'GBP/USD', price: '1.2678', change: '-0.05%', up: false },
-  { pair: 'USD/JPY', price: '148.32', change: '+0.23%', up: true },
-  { pair: 'AUD/USD', price: '0.6543', change: '-0.08%', up: false },
-  { pair: 'XAU/USD', price: '2,045.60', change: '+0.45%', up: true },
-  { pair: 'BTC/USD', price: '43,245.00', change: '+1.25%', up: true },
-  { pair: 'ETH/USD', price: '2,584.50', change: '+0.85%', up: true },
+const tickerSymbols = [
+  { symbol: 'EURUSD', display: 'EUR/USD' },
+  { symbol: 'GBPUSD', display: 'GBP/USD' },
+  { symbol: 'USDJPY', display: 'USD/JPY' },
+  { symbol: 'AUDUSD', display: 'AUD/USD' },
+  { symbol: 'XAUUSD', display: 'XAU/USD' },
+  { symbol: 'BTCUSDT', display: 'BTC/USD' },
+  { symbol: 'ETHUSDT', display: 'ETH/USD' },
 ]
 
 function Hero() {
+  const [livePrices, setLivePrices] = useState({})
+  const [prevPrices, setPrevPrices] = useState({})
+
+  useEffect(() => {
+    const unsubscribe = priceStreamService.subscribe('hero-ticker', (prices) => {
+      setPrevPrices(prev => ({ ...prev, ...livePrices }))
+      setLivePrices(prices)
+    })
+    return () => unsubscribe()
+  }, [])
+
+  const formatPrice = (symbol, priceData) => {
+    if (!priceData) return '---'
+    const price = priceData.bid || priceData.price || 0
+    if (price === 0) return '---'
+    if (symbol.includes('JPY')) return price.toFixed(2)
+    if (symbol.includes('XAU') || symbol.includes('BTC') || symbol.includes('ETH')) {
+      return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+    return price.toFixed(4)
+  }
+
+  const getChange = (symbol) => {
+    const current = livePrices[symbol]?.bid || livePrices[symbol]?.price || 0
+    const prev = prevPrices[symbol]?.bid || prevPrices[symbol]?.price || current
+    if (!prev || prev === 0) return { change: '0.00%', up: true }
+    const changePercent = ((current - prev) / prev) * 100
+    return {
+      change: `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`,
+      up: changePercent >= 0
+    }
+  }
+
+  const trades = tickerSymbols.map(({ symbol, display }) => ({
+    pair: display,
+    price: formatPrice(symbol, livePrices[symbol]),
+    ...getChange(symbol)
+  }))
+
   const allTrades = [...trades, ...trades]
 
   return (

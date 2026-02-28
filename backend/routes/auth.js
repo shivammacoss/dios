@@ -56,6 +56,7 @@ router.post('/send-otp', async (req, res) => {
     const supportEmail = settings?.fromEmail || 'support@example.com'
 
     // Send OTP email
+    const logoUrl = process.env.LOGO_URL || 'https://diosderivative.com/DiosDerivativelogowhite.png'
     const emailResult = await sendTemplateEmail('email_verification', email, {
       otp,
       firstName: firstName || 'User',
@@ -63,7 +64,8 @@ router.post('/send-otp', async (req, res) => {
       expiryMinutes: expiryMinutes.toString(),
       platformName,
       supportEmail,
-      year: new Date().getFullYear().toString()
+      year: new Date().getFullYear().toString(),
+      logoUrl
     })
 
     if (emailResult.success) {
