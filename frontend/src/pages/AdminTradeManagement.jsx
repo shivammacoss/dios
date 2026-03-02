@@ -557,6 +557,7 @@ const AdminTradeManagement = () => {
                 <thead>
                   <tr className="border-b border-gray-700">
                     <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Trade ID</th>
+                    <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Date</th>
                     <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">User</th>
                     <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Symbol</th>
                     <th className="text-left text-gray-500 text-sm font-medium py-3 px-4">Side</th>
@@ -571,6 +572,10 @@ const AdminTradeManagement = () => {
                   {filteredTrades.map((trade) => (
                     <tr key={trade._id} className="border-b border-gray-800 hover:bg-dark-700/50">
                       <td className="py-4 px-4 text-white font-mono text-sm">{trade.tradeId}</td>
+                      <td className="py-4 px-4">
+                        <p className="text-white text-sm">{new Date(trade.openedAt || trade.createdAt).toLocaleDateString()}</p>
+                        <p className="text-gray-500 text-xs">{new Date(trade.openedAt || trade.createdAt).toLocaleTimeString()}</p>
+                      </td>
                       <td className="py-4 px-4">
                         <p className="text-white">{trade.userId?.firstName || trade.userId?.email}</p>
                         <p className="text-gray-500 text-xs font-mono">{trade.userId?._id || 'N/A'}</p>

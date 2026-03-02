@@ -315,7 +315,7 @@ const Signup = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/Formlogo1.png"
+            src="/DiosDerivativewhite.png"
             alt="Dios Logo"
             className="h-16 w-auto object-contain"
           />
