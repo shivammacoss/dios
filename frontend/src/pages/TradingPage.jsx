@@ -1371,7 +1371,7 @@ const TradingPage = () => {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className={`flex-1 flex overflow-hidden ${isDarkMode ? '' : 'bg-white'}`}>
           {/* Instruments Panel */}
           {showInstruments && (
             <div className={`${isMobile ? 'absolute inset-0 z-20' : 'w-[280px]'} border-r flex flex-col shrink-0 ${isDarkMode ? 'bg-[#0d0d0d] border-gray-800' : 'bg-white border-gray-200'}`}>
@@ -1383,7 +1383,7 @@ const TradingPage = () => {
                 </button>
               </div>
               {/* Search */}
-              <div className={`px-3 pt-2 ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
+              <div className={`px-3 py-2 ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
                 <div className="relative">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                   <input
@@ -1396,7 +1396,7 @@ const TradingPage = () => {
                 </div>
               </div>
               {/* Category Tabs */}
-              <div className={`flex items-center gap-1 px-3 py-1 overflow-x-auto ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
+              <div className={`flex items-center gap-1 px-3 pb-2 overflow-x-auto ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
                 <button className="text-gray-600 hover:text-yellow-500 shrink-0">
                   <Star size={14} />
                 </button>

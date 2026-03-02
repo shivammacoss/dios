@@ -545,8 +545,8 @@ router.get('/summary/:tradingAccountId', async (req, res) => {
     const balance = account.balance || 0
     const credit = account.credit || 0
     const equity = balance + credit + floatingPnl
-    // Free Margin = Balance - Used Margin (not equity based)
-    const freeMargin = balance - usedMargin
+    // Free Margin = Equity - Used Margin (standard MT4/MT5 formula)
+    const freeMargin = equity - usedMargin
     const marginLevel = usedMargin > 0 ? (equity / usedMargin) * 100 : 0
 
     res.json({

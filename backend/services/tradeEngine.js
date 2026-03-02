@@ -120,8 +120,8 @@ class TradeEngine {
 
     // Equity = Balance + Credit + Floating PnL
     const equity = account.balance + (account.credit || 0) + floatingPnl
-    // Free Margin = Balance - Used Margin (not equity based)
-    const freeMargin = account.balance - usedMargin
+    // Free Margin = Equity - Used Margin (standard MT4/MT5 formula)
+    const freeMargin = equity - usedMargin
 
     return {
       balance: account.balance,
