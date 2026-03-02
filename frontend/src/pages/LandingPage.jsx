@@ -795,7 +795,7 @@ function Footer() {
         <div className="py-16 grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           <div className="lg:col-span-2">
             <motion.a href="#home" className="flex items-center mb-6" whileHover={{ scale: 1.05 }}>
-              <img src="/DiosDerivativelogowhite.png" alt="Dios Derivatives" className="h-12 w-auto object-contain" />
+              <img src="/DiosDerivativewithoutsloganwhite.png" alt="Dios Derivatives" className="h-12 w-auto object-contain" />
             </motion.a>
             <p className="text-gray-400 mb-6 max-w-sm">
               Empowering traders worldwide with cutting-edge technology, transparent pricing, and reliable execution.

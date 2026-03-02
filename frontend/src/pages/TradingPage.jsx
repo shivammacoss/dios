@@ -1383,7 +1383,7 @@ const TradingPage = () => {
                 </button>
               </div>
               {/* Search */}
-              <div className={`px-3 py-2 ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
+              <div className={`px-3 pt-2 ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
                 <div className="relative">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                   <input
@@ -1395,9 +1395,8 @@ const TradingPage = () => {
                   />
                 </div>
               </div>
-              
               {/* Category Tabs */}
-              <div className={`flex items-center gap-1 px-3 py-2 border-b overflow-x-auto ${isDarkMode ? 'bg-[#0d0d0d] border-gray-800' : 'bg-white border-gray-200'}`}>
+              <div className={`flex items-center gap-1 px-3 py-1 overflow-x-auto ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'}`}>
                 <button className="text-gray-600 hover:text-yellow-500 shrink-0">
                   <Star size={14} />
                 </button>
@@ -1415,9 +1414,8 @@ const TradingPage = () => {
                   </button>
                 ))}
               </div>
-
               {/* Instruments List */}
-              <div className={`flex-1 overflow-y-auto px-2 ${!isDarkMode ? 'light-scrollbar' : ''}`}>
+              <div className={`flex-1 overflow-y-auto px-2 ${isDarkMode ? 'bg-[#0d0d0d]' : 'bg-white'} ${!isDarkMode ? 'light-scrollbar' : ''}`}>
                 {loadingInstruments ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="text-gray-500 text-sm">Loading instruments...</div>
