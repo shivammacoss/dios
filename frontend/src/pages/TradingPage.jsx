@@ -1353,8 +1353,30 @@ const TradingPage = () => {
           <span className="text-red-500 font-mono text-xs sm:text-sm mr-1 sm:mr-2">{selectedInstrument.bid?.toFixed(2)}</span>
           <span className="text-green-500 font-mono text-xs sm:text-sm mr-2 sm:mr-4">{selectedInstrument.ask?.toFixed(2)}</span>
           <button 
+            onClick={() => {
+              setOrderTab('Pending')
+              setPendingOrderType('BUY LIMIT')
+              setEntryPrice(selectedInstrument.bid?.toFixed(selectedInstrument.symbol?.includes('JPY') ? 3 : 5) || '')
+              setShowOrderPanel(true)
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 sm:px-3 py-1 rounded"
+          >
+            {isMobile ? 'Buy L' : 'Buy Limit'}
+          </button>
+          <button 
+            onClick={() => {
+              setOrderTab('Pending')
+              setPendingOrderType('SELL LIMIT')
+              setEntryPrice(selectedInstrument.ask?.toFixed(selectedInstrument.symbol?.includes('JPY') ? 3 : 5) || '')
+              setShowOrderPanel(true)
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 sm:px-3 py-1 rounded ml-1"
+          >
+            {isMobile ? 'Sell L' : 'Sell Limit'}
+          </button>
+          <button 
             onClick={() => setShowOrderPanel(!showOrderPanel)}
-            className="bg-teal-500 hover:bg-teal-600 text-white text-xs px-2 sm:px-3 py-1 rounded"
+            className="bg-teal-500 hover:bg-teal-600 text-white text-xs px-2 sm:px-3 py-1 rounded ml-1"
           >
             {isMobile ? 'Order' : 'New Order'}
           </button>
@@ -1589,13 +1611,15 @@ const TradingPage = () => {
               </div>
             ) : (
               /* Single Chart View */
-              <iframe
-                key={`${selectedInstrument.symbol}-${isDarkMode}-${isMobile}`}
-                src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${getSymbolForTradingView(selectedInstrument.symbol)}&interval=5&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=${isDarkMode ? '0d0d0d' : 'ffffff'}&studies=[]&theme=${isDarkMode ? 'dark' : 'light'}&style=1&timezone=Etc%2FUTC&withdateranges=1&showpopupbutton=1&studies_overrides={}&overrides={}&enabled_features=["left_toolbar","header_widget","drawing_templates"]&disabled_features=["hide_left_toolbar_by_default"]&locale=en&utm_source=localhost&utm_medium=widget_new&utm_campaign=chart&hide_side_toolbar=0&allow_symbol_change=1&details=1&calendar=0&hotlist=0`}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                allowFullScreen
-                title="TradingView Chart"
-              />
+              <>
+                <iframe
+                  key={`${selectedInstrument.symbol}-${isDarkMode}-${isMobile}`}
+                  src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=${getSymbolForTradingView(selectedInstrument.symbol)}&interval=5&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=1&saveimage=1&toolbarbg=${isDarkMode ? '0d0d0d' : 'ffffff'}&studies=[]&theme=${isDarkMode ? 'dark' : 'light'}&style=1&timezone=Etc%2FUTC&withdateranges=1&showpopupbutton=1&studies_overrides={}&overrides={}&enabled_features=["left_toolbar","header_widget","drawing_templates"]&disabled_features=["hide_left_toolbar_by_default"]&locale=en&utm_source=localhost&utm_medium=widget_new&utm_campaign=chart&hide_side_toolbar=0&allow_symbol_change=1&details=1&calendar=0&hotlist=0`}
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  allowFullScreen
+                  title="TradingView Chart"
+                />
+                              </>
             )}
           </div>
 
