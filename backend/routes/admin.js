@@ -746,4 +746,121 @@ router.get('/logs', async (req, res) => {
   }
 })
 
+// GET /api/admin/pending-actions - Get all pending actions for admin dashboard
+router.get('/pending-actions', async (req, res) => {
+  try {
+    // Import models dynamically to avoid circular dependencies
+    const KYC = (await import('../models/KYC.js')).default
+    const Wallet = (await import('../models/Wallet.js')).default
+    const IBWallet = (await import('../models/IBWallet.js')).default
+    const MasterTrader = (await import('../models/MasterTrader.js')).default
+    const ChallengeAccount = (await import('../models/ChallengeAccount.js')).default
+
+    // Pending KYC verifications
+    const pendingKYC = await KYC.find({ status: 'PENDING' })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Pending Withdrawals
+    const pendingWithdrawals = await Transaction.find({ type: 'Withdrawal', status: 'Pending' })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Pending Deposits
+    const pendingDeposits = await Transaction.find({ type: 'Deposit', status: 'Pending' })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Pending IB Withdrawals
+    const pendingIBWithdrawals = await IBWallet.find({ 
+      'transactions.status': 'PENDING',
+      'transactions.type': 'WITHDRAWAL'
+    })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Pending Master Trader Applications
+    const pendingMasterTraders = await MasterTrader.find({ status: 'PENDING' })
+      .populate('userId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Pending Challenge Accounts (awaiting review)
+    const pendingChallenges = await ChallengeAccount.find({ status: 'PENDING_REVIEW' })
+      .populate('userId', 'firstName lastName email')
+      .populate('challengeId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(50)
+
+    // Summary counts
+    const summary = {
+      kyc: pendingKYC.length,
+      withdrawals: pendingWithdrawals.length,
+      deposits: pendingDeposits.length,
+      ibWithdrawals: pendingIBWithdrawals.length,
+      masterTraders: pendingMasterTraders.length,
+      challenges: pendingChallenges.length,
+      total: pendingKYC.length + pendingWithdrawals.length + pendingDeposits.length + 
+             pendingIBWithdrawals.length + pendingMasterTraders.length + pendingChallenges.length
+    }
+
+    res.json({
+      success: true,
+      summary,
+      pendingActions: {
+        kyc: pendingKYC.map(k => ({
+          _id: k._id,
+          type: 'KYC',
+          user: k.userId,
+          documentType: k.documentType,
+          createdAt: k.createdAt
+        })),
+        withdrawals: pendingWithdrawals.map(w => ({
+          _id: w._id,
+          type: 'Withdrawal',
+          user: w.userId,
+          amount: w.amount,
+          method: w.paymentMethod,
+          createdAt: w.createdAt
+        })),
+        deposits: pendingDeposits.map(d => ({
+          _id: d._id,
+          type: 'Deposit',
+          user: d.userId,
+          amount: d.amount,
+          method: d.paymentMethod,
+          createdAt: d.createdAt
+        })),
+        ibWithdrawals: pendingIBWithdrawals.map(i => ({
+          _id: i._id,
+          type: 'IB Withdrawal',
+          user: i.userId,
+          createdAt: i.updatedAt
+        })),
+        masterTraders: pendingMasterTraders.map(m => ({
+          _id: m._id,
+          type: 'Master Trader',
+          user: m.userId,
+          displayName: m.displayName,
+          createdAt: m.createdAt
+        })),
+        challenges: pendingChallenges.map(c => ({
+          _id: c._id,
+          type: 'Challenge',
+          user: c.userId,
+          challengeName: c.challengeId?.name,
+          createdAt: c.createdAt
+        }))
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching pending actions:', error)
+    res.status(500).json({ success: false, message: 'Error fetching pending actions', error: error.message })
+  }
+})
+
 export default router

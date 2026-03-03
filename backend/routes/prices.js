@@ -85,9 +85,15 @@ router.get('/instruments', async (req, res) => {
       return priceCache.has(symbol)
     })
     
+    // Always include all metals even without price data (they're important)
+    const metalsToInclude = METAL_SYMBOLS.filter(s => !symbolsWithPrices.includes(s))
+    
     // If no prices yet, return popular instruments as fallback (excluding energy)
     const fallbackSymbols = allSymbols.filter(s => !ENERGY_SYMBOLS.includes(s)).slice(0, 50)
-    const symbolsToReturn = symbolsWithPrices.length > 0 ? symbolsWithPrices : fallbackSymbols
+    let symbolsToReturn = symbolsWithPrices.length > 0 ? [...symbolsWithPrices, ...metalsToInclude] : fallbackSymbols
+    
+    // Remove duplicates
+    symbolsToReturn = [...new Set(symbolsToReturn)]
     
     const instruments = symbolsToReturn.map(symbol => {
       const category = categorizeSymbol(symbol)

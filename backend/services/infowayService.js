@@ -21,8 +21,9 @@ const FOREX_SYMBOLS = [
   'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'NZDUSD', 'USDCAD', 'EURGBP', 'EURJPY', 'GBPJPY',
   'EURCHF', 'EURAUD', 'EURCAD', 'GBPAUD', 'GBPCAD', 'AUDCAD', 'AUDJPY', 'CADJPY', 'CHFJPY', 'NZDJPY'
 ]
-// METALS: 4 main symbols
-const METAL_SYMBOLS = ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD']
+// METALS: 4 main symbols (Infoway uses standard forex naming)
+// Note: Some APIs use GOLD, SILVER, etc. - Infoway uses XAU/XAG format
+const METAL_SYMBOLS = ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD', 'GOLD', 'SILVER', 'PLATINUM', 'PALLADIUM']
 // ENERGY: Disabled (no reliable data)
 const ENERGY_SYMBOLS = []
 // CRYPTO: 30 most popular (high liquidity)
@@ -37,6 +38,18 @@ const STOCK_SYMBOLS = []
 
 // Price cache
 const priceCache = new Map()
+
+// Symbol mapping for alternative names from Infoway
+const SYMBOL_MAP = {
+  'GOLD': 'XAUUSD',
+  'SILVER': 'XAGUSD',
+  'PLATINUM': 'XPTUSD',
+  'PALLADIUM': 'XPDUSD',
+  'XAU': 'XAUUSD',
+  'XAG': 'XAGUSD',
+  'XPT': 'XPTUSD',
+  'XPD': 'XPDUSD'
+}
 
 // Connection state
 let forexWs = null
@@ -87,6 +100,9 @@ function createConnection(type, endpoint, symbols) {
     console.log(`[Infoway] ${type} WebSocket connected successfully`)
     reconnectAttempts = 0
     
+    // Set debug start time
+    priceCache.set('_debugStart', Date.now())
+    
     // Subscribe to symbols after connection
     setTimeout(() => {
       subscribeToSymbols(ws, symbols, type)
@@ -103,9 +119,22 @@ function createConnection(type, endpoint, symbols) {
       // Handle price push (code 10002)
       if (message.code === 10002 && message.data) {
         const priceData = message.data
-        const symbol = priceData.s
+        let symbol = priceData.s
         const price = parseFloat(priceData.p)
         const timestamp = priceData.t
+        
+        // Map alternative symbol names to standard names
+        if (SYMBOL_MAP[symbol]) {
+          symbol = SYMBOL_MAP[symbol]
+        }
+        
+        // Debug log for all forex and metals (first 10 seconds only)
+        if (symbol && !symbol.includes('USDT')) {
+          // Log forex/metal prices for debugging
+          if (Date.now() - (priceCache.get('_debugStart') || Date.now()) < 10000) {
+            console.log(`[Infoway] Price received: ${symbol} = ${price}`)
+          }
+        }
         
         // Skip if no valid price
         if (!price || isNaN(price)) return
@@ -128,6 +157,58 @@ function createConnection(type, endpoint, symbols) {
         if (onPriceUpdate) {
           onPriceUpdate(symbol, { bid, ask, price, timestamp })
         }
+        
+        // Generate synthetic prices for other metals based on XAUUSD
+        // This is a fallback since Infoway may not provide all metal prices
+        if (symbol === 'XAUUSD' && price > 0) {
+          // Silver: typically ~1/80 of gold price
+          if (!priceCache.has('XAGUSD') || Date.now() - (priceCache.get('XAGUSD')?.timestamp || 0) > 60000) {
+            const silverPrice = price / 80
+            const silverSpread = getSpreadForSymbol('XAGUSD')
+            priceCache.set('XAGUSD', {
+              bid: silverPrice,
+              ask: silverPrice + silverSpread,
+              price: silverPrice,
+              timestamp: Date.now(),
+              synthetic: true
+            })
+            if (onPriceUpdate) {
+              onPriceUpdate('XAGUSD', { bid: silverPrice, ask: silverPrice + silverSpread, price: silverPrice, timestamp: Date.now() })
+            }
+          }
+          
+          // Platinum: typically ~0.35-0.40 of gold price
+          if (!priceCache.has('XPTUSD') || Date.now() - (priceCache.get('XPTUSD')?.timestamp || 0) > 60000) {
+            const platinumPrice = price * 0.38
+            const platinumSpread = getSpreadForSymbol('XPTUSD')
+            priceCache.set('XPTUSD', {
+              bid: platinumPrice,
+              ask: platinumPrice + platinumSpread,
+              price: platinumPrice,
+              timestamp: Date.now(),
+              synthetic: true
+            })
+            if (onPriceUpdate) {
+              onPriceUpdate('XPTUSD', { bid: platinumPrice, ask: platinumPrice + platinumSpread, price: platinumPrice, timestamp: Date.now() })
+            }
+          }
+          
+          // Palladium: typically ~0.35-0.45 of gold price
+          if (!priceCache.has('XPDUSD') || Date.now() - (priceCache.get('XPDUSD')?.timestamp || 0) > 60000) {
+            const palladiumPrice = price * 0.40
+            const palladiumSpread = getSpreadForSymbol('XPDUSD')
+            priceCache.set('XPDUSD', {
+              bid: palladiumPrice,
+              ask: palladiumPrice + palladiumSpread,
+              price: palladiumPrice,
+              timestamp: Date.now(),
+              synthetic: true
+            })
+            if (onPriceUpdate) {
+              onPriceUpdate('XPDUSD', { bid: palladiumPrice, ask: palladiumPrice + palladiumSpread, price: palladiumPrice, timestamp: Date.now() })
+            }
+          }
+        }
       }
       
       // Handle subscription response (code 10001)
@@ -136,6 +217,20 @@ function createConnection(type, endpoint, symbols) {
         // Log cache size after subscription
         setTimeout(() => {
           console.log(`[Infoway] ${type} cache size: ${priceCache.size} symbols`)
+          // Log which forex pairs have prices
+          const forexPairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'NZDUSD', 'USDCAD', 'EURGBP', 'EURJPY', 'GBPJPY']
+          console.log('[Infoway] Forex pairs status:')
+          forexPairs.forEach(s => {
+            const price = priceCache.get(s)
+            console.log(`  ${s}: ${price ? price.bid.toFixed(5) : 'NO DATA'}`)
+          })
+          // Log which metals have prices
+          const metals = ['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD']
+          console.log('[Infoway] Metals status:')
+          metals.forEach(m => {
+            const price = priceCache.get(m)
+            console.log(`  ${m}: ${price ? price.bid : 'NO DATA'}`)
+          })
         }, 5000)
       }
       
@@ -189,16 +284,29 @@ function startHeartbeat(ws, type) {
 
 // Get spread for symbol (simulated spread based on asset type)
 function getSpreadForSymbol(symbol) {
+  // Check metals FIRST (before forex check since XAUUSD contains 'USD')
+  if (symbol === 'XAUUSD') return 0.50 // Gold - 50 cents spread
+  if (symbol === 'XAGUSD') return 0.03 // Silver - 3 cents spread
+  if (symbol === 'XPTUSD') return 1.50 // Platinum - $1.50 spread
+  if (symbol === 'XPDUSD') return 2.00 // Palladium - $2 spread
+  
+  // Crypto (check before forex since some have USD)
+  if (symbol.includes('USDT')) return parseFloat(priceCache.get(symbol)?.price || 100) * 0.0001 // Crypto 0.01%
+  
+  // Energy
+  if (symbol.includes('OIL') || symbol.includes('NGAS')) return 0.03
+  
+  // Forex pairs
   if (symbol.includes('USD') && symbol.length === 6) {
-    // Forex majors
+    // Forex majors - tighter spread
     if (['EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF'].includes(symbol)) return 0.00010
     return 0.00020 // Forex crosses
   }
-  if (symbol.includes('XAU')) return 0.30 // Gold
-  if (symbol.includes('XAG')) return 0.020 // Silver
-  if (symbol.includes('OIL') || symbol.includes('NGAS')) return 0.03 // Energy
-  if (symbol.includes('USDT')) return parseFloat(priceCache.get(symbol)?.price || 100) * 0.0001 // Crypto 0.01%
-  return 0.01 // Default
+  
+  // JPY pairs
+  if (symbol.includes('JPY')) return 0.010 // JPY pairs - 1 pip
+  
+  return 0.00020 // Default forex spread
 }
 
 // Connect to all WebSocket streams

@@ -120,7 +120,7 @@ function Navbar() {
             <a
               href="/Dios.apk"
               download
-              className="flex items-center gap-2 rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-2 text-sm font-semibold text-green-400 backdrop-blur-sm transition-all hover:bg-green-500/20"
+              className="flex items-center gap-2 rounded-lg border border-burgundy dark:border-green-500/50 bg-burgundy/10 dark:bg-green-500/10 px-4 py-2 text-sm font-semibold text-burgundy dark:text-green-400 backdrop-blur-sm transition-all hover:bg-burgundy/20 dark:hover:bg-green-500/20"
             >
               <Download className="w-4 h-4" />
               Download APK

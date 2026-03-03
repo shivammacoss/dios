@@ -44,6 +44,7 @@ import AdminBannerManagement from './pages/AdminBannerManagement'
 import LandingPage from './pages/LandingPage'
 import EmployeeLogin from './pages/EmployeeLogin'
 import AdminProfile from './pages/AdminProfile'
+import AdminPendingActions from './pages/AdminPendingActions'
 
 function App() {
   return (
@@ -91,6 +92,7 @@ function App() {
         <Route path="/admin/bonus-management" element={<AdminBonusManagement />} />
         <Route path="/admin/banners" element={<AdminBannerManagement />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/pending-actions" element={<AdminPendingActions />} />
         <Route path="/admin-employee" element={<EmployeeLogin />} />
         <Route path="/buy-challenge" element={<BuyChallengePage />} />
         <Route path="/challenge-dashboard" element={<ChallengeDashboardPage />} />

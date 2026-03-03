@@ -61,6 +61,27 @@ const TradingPage = () => {
         }))
         setInstruments(instrumentsWithState)
         setLoadingInstruments(false)
+        
+        // Immediately fetch prices for these instruments
+        const symbols = data.instruments.map(i => i.symbol)
+        const defaultSymbols = ['XAUUSD', 'EURUSD', 'GBPUSD']
+        const allSymbols = [...new Set([...symbols, ...defaultSymbols])]
+        const allPrices = await priceService.getAllPrices(allSymbols)
+        console.log('[TradingPage] Initial prices fetched:', Object.keys(allPrices).length)
+        
+        if (Object.keys(allPrices).length > 0) {
+          setInstruments(prev => prev.map(inst => {
+            const priceData = allPrices[inst.symbol]
+            if (priceData && priceData.bid) {
+              const bid = priceData.bid
+              const ask = priceData.ask || priceData.bid
+              const spread = Math.abs(ask - bid) || (bid * 0.0001)
+              return { ...inst, bid, ask, spread }
+            }
+            return inst
+          }))
+          setLivePrices(prev => ({ ...prev, ...allPrices }))
+        }
       } else {
         setLoadingInstruments(false)
       }
@@ -126,10 +147,11 @@ const TradingPage = () => {
 
   useEffect(() => {
     fetchAccount()
-    // Fetch all instruments from API
-    fetchInstruments()
-    // Fetch live prices in background - don't block UI
-    fetchLivePrices()
+    // Fetch all instruments from API first, then fetch prices
+    fetchInstruments().then(() => {
+      // Fetch live prices after instruments are loaded
+      fetchLivePrices()
+    })
     // Fetch admin-set spreads
     fetchAdminSpreads()
     
@@ -373,6 +395,7 @@ const TradingPage = () => {
       
       // Single batch call to backend (handles both MetaAPI and Binance)
       const allPrices = await priceService.getAllPrices(allSymbols)
+      console.log('[TradingPage] Fetched prices:', Object.keys(allPrices).length, 'symbols', allPrices)
       
       // Always update livePrices state for open trades display
       if (Object.keys(allPrices).length > 0) {
@@ -1445,15 +1468,43 @@ const TradingPage = () => {
                         <div className="text-green-500 text-[10px]">+{inst.change?.toFixed(2) || '0.00'}%</div>
                       </div>
                       <div className="flex-1" />
-                      <div className="text-right w-16">
+                      <div className="text-right">
                         <div className="text-red-500 text-xs font-mono">
-                          {inst.bid > 0 ? inst.bid.toFixed(inst.bid > 100 ? 2 : 5) : '...'}
+                          {inst.bid > 0 ? inst.bid.toFixed(inst.bid > 100 ? 2 : 5) : '- - -'}
                         </div>
                         <div className={`text-[9px] ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>Bid</div>
                       </div>
-                      <div className="text-right w-14">
+                      {/* Spread display in pips - blue background like reference */}
+                      <div className="mx-2 flex items-center justify-center">
+                        {inst.bid > 0 && inst.ask > 0 ? (() => {
+                          // Calculate spread directly from bid/ask
+                          const rawSpread = Math.abs(inst.ask - inst.bid)
+                          let spreadPips = rawSpread
+                          
+                          // Convert to pips based on symbol type
+                          if (inst.symbol.includes('JPY')) {
+                            spreadPips = rawSpread * 100 // JPY pairs: 1 pip = 0.01
+                          } else if (['XAUUSD', 'XAGUSD', 'XPTUSD', 'XPDUSD'].includes(inst.symbol)) {
+                            spreadPips = rawSpread * 10 // Metals: show in 10ths (cents)
+                          } else if (inst.symbol.includes('USDT') || inst.symbol.includes('USD') && inst.symbol.length > 6) {
+                            spreadPips = rawSpread // Crypto: show raw spread in USD
+                          } else {
+                            spreadPips = rawSpread * 10000 // Forex: 1 pip = 0.0001
+                          }
+                          
+                          // Use blue background like reference image
+                          return (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white min-w-[35px] text-center">
+                              {spreadPips < 10 ? spreadPips.toFixed(1) : spreadPips < 1000 ? spreadPips.toFixed(1) : spreadPips.toFixed(0)}
+                            </span>
+                          )
+                        })() : (
+                          <span className={`text-[10px] ${isDarkMode ? 'text-gray-600' : 'text-gray-400'}`}>- - -</span>
+                        )}
+                      </div>
+                      <div className="text-right">
                         <div className="text-green-500 text-xs font-mono">
-                          {inst.ask > 0 ? inst.ask.toFixed(inst.ask > 100 ? 2 : 5) : '...'}
+                          {inst.ask > 0 ? inst.ask.toFixed(inst.ask > 100 ? 2 : 5) : '- - -'}
                         </div>
                         <div className={`text-[9px] ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>Ask</div>
                       </div>
@@ -1463,7 +1514,10 @@ const TradingPage = () => {
               </div>
               
               {/* Footer */}
-              <div className={`px-3 py-2 border-t flex items-center justify-end shrink-0 ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+              <div className={`px-3 py-2 border-t flex items-center justify-between shrink-0 ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+                <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {filteredInstruments.length} instruments
+                </span>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span className="text-green-500 text-xs">Live</span>
@@ -1617,6 +1671,7 @@ const TradingPage = () => {
                     <th className="text-left py-2 px-3 font-normal">Current</th>
                     <th className="text-left py-2 px-3 font-normal">SL</th>
                     <th className="text-left py-2 px-3 font-normal">TP</th>
+                    <th className="text-left py-2 px-3 font-normal">Charges</th>
                     <th className="text-left py-2 px-3 font-normal">Swap</th>
                     <th className="text-left py-2 px-3 font-normal">P/L</th>
                     <th className="text-left py-2 px-3 font-normal">Action</th>
@@ -1658,6 +1713,7 @@ const TradingPage = () => {
                           <td className={`py-2 px-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{formatPrice(currentPrice)}</td>
                           <td className={`py-2 px-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{trade.stopLoss ? formatPrice(trade.stopLoss) : '-'}</td>
                           <td className={`py-2 px-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{trade.takeProfit ? formatPrice(trade.takeProfit) : '-'}</td>
+                          <td className={`py-2 px-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>${(trade.commission || 0).toFixed(2)}</td>
                           <td className={`py-2 px-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>${trade.swap?.toFixed(2) || '0.00'}</td>
                           <td className={`py-2 px-3 text-xs font-medium ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             ${pnl.toFixed(2)}

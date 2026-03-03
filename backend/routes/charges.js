@@ -137,10 +137,10 @@ router.post('/', async (req, res) => {
 
     const charge = await Charges.create({
       level,
-      userId: userId || null,
-      instrumentSymbol: instrumentSymbol || null,
-      segment: segment || null,
-      accountTypeId: accountTypeId || null,
+      userId: userId && userId !== '' ? userId : null,
+      instrumentSymbol: instrumentSymbol && instrumentSymbol !== '' ? instrumentSymbol : null,
+      segment: segment && segment !== '' ? segment : null,
+      accountTypeId: accountTypeId && accountTypeId !== '' ? accountTypeId : null,
       spreadType: spreadType || 'FIXED',
       spreadValue: spreadValue || 0,
       commissionType: commissionType || 'PER_LOT',
@@ -198,10 +198,10 @@ router.put('/:id', async (req, res) => {
     }
 
     if (level !== undefined) charge.level = level
-    if (userId !== undefined) charge.userId = userId || null
-    if (instrumentSymbol !== undefined) charge.instrumentSymbol = instrumentSymbol || null
-    if (segment !== undefined) charge.segment = segment || null
-    if (accountTypeId !== undefined) charge.accountTypeId = accountTypeId || null
+    if (userId !== undefined) charge.userId = userId && userId !== '' ? userId : null
+    if (instrumentSymbol !== undefined) charge.instrumentSymbol = instrumentSymbol && instrumentSymbol !== '' ? instrumentSymbol : null
+    if (segment !== undefined) charge.segment = segment && segment !== '' ? segment : null
+    if (accountTypeId !== undefined) charge.accountTypeId = accountTypeId && accountTypeId !== '' ? accountTypeId : null
     if (spreadType !== undefined) charge.spreadType = spreadType
     if (spreadValue !== undefined) charge.spreadValue = spreadValue
     if (commissionType !== undefined) charge.commissionType = commissionType

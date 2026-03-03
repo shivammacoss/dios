@@ -491,6 +491,7 @@ router.put('/admin/approve/:id', async (req, res) => {
 // PUT /api/wallet/admin/reject/:id - Reject transaction (admin)
 router.put('/admin/reject/:id', async (req, res) => {
   try {
+    const { reason } = req.body
     const transaction = await Transaction.findById(req.params.id)
     
     if (!transaction) {
@@ -502,6 +503,7 @@ router.put('/admin/reject/:id', async (req, res) => {
     }
 
     const wallet = await Wallet.findById(transaction.walletId)
+    const user = await User.findById(transaction.userId)
 
     if (transaction.type === 'Deposit') {
       if (wallet.pendingDeposits) wallet.pendingDeposits -= transaction.amount
@@ -513,9 +515,62 @@ router.put('/admin/reject/:id', async (req, res) => {
 
     transaction.status = 'Rejected'
     transaction.processedAt = new Date()
+    transaction.adminRemarks = reason || 'Rejected by admin'
 
     await wallet.save()
     await transaction.save()
+
+    // Send email notification to user for rejected deposit
+    if (transaction.type === 'Deposit' && user) {
+      try {
+        const emailSubject = `Deposit Rejected - ${transaction._id}`
+        const emailContent = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: Arial, sans-serif;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 40px; border: 1px solid #dc2626;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <img src="${process.env.LOGO_URL || 'https://diosderivative.com/DiosDerivativewhite.png'}" alt="Dios Derivative" style="height: 50px; width: auto; margin-bottom: 15px;" />
+        <h1 style="color: #fff; margin: 0; font-size: 24px;">Dios Derivative</h1>
+      </div>
+      <div style="text-align: center; margin-bottom: 20px;">
+        <span style="display: inline-block; background: #dc2626; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold;">✗ Deposit Rejected</span>
+      </div>
+      <h2 style="color: #dc2626; margin: 0 0 20px; font-size: 20px; text-align: center;">Deposit Not Approved</h2>
+      <p style="color: #aaa; margin: 0 0 20px; line-height: 1.6;">Hi ${user.firstName || 'User'},</p>
+      <p style="color: #aaa; margin: 0 0 20px; line-height: 1.6;">Your deposit of $${transaction.amount.toFixed(2)} has been rejected.</p>
+      <div style="background: #1a1a2e; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <p style="color: #888; font-size: 14px; margin: 0 0 10px;">Transaction Details:</p>
+        <p style="color: #aaa; font-size: 14px; margin: 0 0 5px;">Amount: $${transaction.amount.toFixed(2)}</p>
+        <p style="color: #aaa; font-size: 14px; margin: 0 0 5px;">Transaction ID: ${transaction._id}</p>
+        <p style="color: #aaa; font-size: 14px; margin: 0 0 5px;">Date: ${new Date().toLocaleDateString()}</p>
+        ${reason ? `<p style="color: #aaa; font-size: 14px; margin: 0;">Reason: ${reason}</p>` : ''}
+      </div>
+      <p style="color: #888; font-size: 14px; margin: 0 0 30px;">If you have any questions, please contact our support team.</p>
+      <div style="text-align: center; margin-bottom: 30px;">
+        <a href="${process.env.FRONTEND_URL || 'https://diosderivative.com'}/user/login" style="display: inline-block; background: #dc2626; color: #fff; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold;">Contact Support</a>
+      </div>
+      <hr style="border: none; border-top: 1px solid #333; margin: 30px 0;">
+      <p style="color: #666; font-size: 12px; margin: 0; text-align: center;">© ${new Date().getFullYear()} Dios Derivative. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`
+
+        await sendTemplateEmail(
+          user.email,
+          emailSubject,
+          emailContent
+        )
+        console.log(`[Email] Deposit rejection sent to ${user.email}`)
+      } catch (emailError) {
+        console.error('[Email] Error sending deposit rejection email:', emailError)
+      }
+    }
 
     res.json({ message: 'Transaction rejected', transaction })
   } catch (error) {

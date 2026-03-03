@@ -577,7 +577,12 @@ const AdminEmailTemplates = () => {
             
             <div className="flex-1 overflow-y-auto bg-gray-100">
               <iframe
-                srcDoc={selectedTemplate.htmlContent}
+                srcDoc={selectedTemplate.htmlContent
+                  .replace(/\{\{logoUrl\}\}/g, 'https://diosderivative.com/DiosDerivativewhite.png')
+                  .replace(/\{\{platformName\}\}/g, 'Dios Derivative')
+                  .replace(/\{\{firstName\}\}/g, 'John')
+                  .replace(/\{\{year\}\}/g, new Date().getFullYear().toString())
+                }
                 className="w-full h-full min-h-[500px]"
                 title="Email Preview"
               />
