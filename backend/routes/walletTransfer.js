@@ -5,6 +5,10 @@ import TradingAccount from '../models/TradingAccount.js'
 import AccountType from '../models/AccountType.js'
 import Trade from '../models/Trade.js'
 import Transaction from '../models/Transaction.js'
+import CopyFollower from '../models/CopyFollower.js'
+import MasterTrader from '../models/MasterTrader.js'
+import CopyCommission from '../models/CopyCommission.js'
+import CopySettings from '../models/CopySettings.js'
 
 const router = express.Router()
 
@@ -197,12 +201,103 @@ router.post('/from-trading', async (req, res) => {
       })
     }
 
-    // Perform transfer
+    // Check if this account is a copy trading follower and calculate commission
+    let commissionDeducted = 0
+    let masterCommission = 0
+    let adminCommission = 0
+    let copyFollower = null
+    let master = null
+
+    const followerRecord = await CopyFollower.findOne({
+      followerAccountId: tradingAccountId,
+      status: { $in: ['ACTIVE', 'PAUSED'] }
+    })
+
+    if (followerRecord) {
+      copyFollower = followerRecord
+      // Get master's commission percentage
+      master = await MasterTrader.findById(copyFollower.masterId)
+      
+      if (master && master.approvedCommissionPercentage > 0) {
+        // Calculate unpaid profit (total profit - already paid commission)
+        const totalProfit = copyFollower.stats.totalProfit || 0
+        const totalCommissionPaid = copyFollower.stats.totalCommissionPaid || 0
+        const unpaidProfit = totalProfit - totalCommissionPaid
+        
+        if (unpaidProfit > 0) {
+          // Calculate commission on unpaid profit
+          const commissionPercentage = master.approvedCommissionPercentage
+          const adminSharePercentage = master.adminSharePercentage || 30
+          
+          commissionDeducted = unpaidProfit * (commissionPercentage / 100)
+          adminCommission = commissionDeducted * (adminSharePercentage / 100)
+          masterCommission = commissionDeducted - adminCommission
+          
+          // Round to 2 decimal places
+          commissionDeducted = Math.round(commissionDeducted * 100) / 100
+          adminCommission = Math.round(adminCommission * 100) / 100
+          masterCommission = Math.round(masterCommission * 100) / 100
+          
+          // Ensure we don't deduct more than the transfer amount
+          if (commissionDeducted > transferAmount) {
+            return res.status(400).json({
+              success: false,
+              message: `Pending copy trading commission of $${commissionDeducted.toFixed(2)} exceeds withdrawal amount. Please withdraw at least $${commissionDeducted.toFixed(2)} to cover commission.`
+            })
+          }
+          
+          console.log(`[CopyTrading] Commission on withdrawal: Profit=$${unpaidProfit.toFixed(2)}, Commission=$${commissionDeducted.toFixed(2)} (Master: $${masterCommission.toFixed(2)}, Admin: $${adminCommission.toFixed(2)})`)
+        }
+      }
+    }
+
+    // Perform transfer (deduct commission from transfer amount)
+    const netTransferAmount = transferAmount - commissionDeducted
     tradingAccount.balance -= transferAmount
-    user.walletBalance += transferAmount
+    user.walletBalance += netTransferAmount
 
     await tradingAccount.save()
     await user.save()
+
+    // If commission was deducted, update master and create commission record
+    if (commissionDeducted > 0 && master && copyFollower) {
+      // Credit master's pending commission
+      master.pendingCommission = (master.pendingCommission || 0) + masterCommission
+      master.totalCommissionEarned = (master.totalCommissionEarned || 0) + masterCommission
+      await master.save()
+      
+      // Credit admin pool
+      try {
+        const settings = await CopySettings.getSettings()
+        settings.adminCopyPool = (settings.adminCopyPool || 0) + adminCommission
+        await settings.save()
+      } catch (settingsError) {
+        console.error('Error updating admin pool:', settingsError)
+      }
+      
+      // Update follower's commission paid
+      copyFollower.stats.totalCommissionPaid = (copyFollower.stats.totalCommissionPaid || 0) + commissionDeducted
+      await copyFollower.save()
+      
+      // Create commission record
+      await CopyCommission.create({
+        masterId: copyFollower.masterId,
+        followerId: copyFollower._id,
+        followerUserId: userId,
+        followerAccountId: tradingAccountId,
+        tradingDay: new Date().toISOString().split('T')[0],
+        dailyProfit: copyFollower.stats.totalProfit - (copyFollower.stats.totalCommissionPaid - commissionDeducted),
+        commissionPercentage: master.approvedCommissionPercentage,
+        totalCommission: commissionDeducted,
+        adminShare: adminCommission,
+        masterShare: masterCommission,
+        adminSharePercentage: master.adminSharePercentage || 30,
+        status: 'DEDUCTED',
+        deductedAt: new Date()
+      })
+      
+      console.log(`[CopyTrading] Commission deducted on withdrawal: $${commissionDeducted.toFixed(2)} from user ${userId}`)
+    }
 
     // Log transaction
     await Transaction.create({
@@ -213,14 +308,19 @@ router.post('/from-trading', async (req, res) => {
       tradingAccountId,
       tradingAccountName: tradingAccount.accountId || `Account ${tradingAccountId.slice(-6)}`,
       status: 'Completed',
-      transactionRef: `TRF${Date.now()}`
+      transactionRef: `TRF${Date.now()}`,
+      adminRemarks: commissionDeducted > 0 ? `Copy trading commission deducted: $${commissionDeducted.toFixed(2)}` : null
     })
 
     res.json({
       success: true,
-      message: 'Transfer successful',
+      message: commissionDeducted > 0 
+        ? `Transfer successful. Copy trading commission of $${commissionDeducted.toFixed(2)} deducted.`
+        : 'Transfer successful',
       userWalletBalance: user.walletBalance,
-      tradingAccountBalance: tradingAccount.balance
+      tradingAccountBalance: tradingAccount.balance,
+      commissionDeducted: commissionDeducted,
+      netTransferAmount: netTransferAmount
     })
   } catch (error) {
     console.error('Error transferring from trading account:', error)
