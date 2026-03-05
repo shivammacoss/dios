@@ -71,7 +71,7 @@ const WalletPage = () => {
   const [cryptoWithdrawAddress, setCryptoWithdrawAddress] = useState('')
   const [cryptoWithdrawCurrency, setCryptoWithdrawCurrency] = useState('USDT')
   const [cryptoWithdrawNetwork, setCryptoWithdrawNetwork] = useState('TRC20')
-  const [withdrawMethod, setWithdrawMethod] = useState('bank')
+  const [withdrawMethod, setWithdrawMethod] = useState('crypto')
   const [tradingAccounts, setTradingAccounts] = useState([])
   const [selectedBonusAccount, setSelectedBonusAccount] = useState(null)
   const fileInputRef = useRef(null)
@@ -267,7 +267,7 @@ const WalletPage = () => {
         setCryptoWithdrawAddress('')
         setCryptoWithdrawCurrency('USDT')
         setCryptoWithdrawNetwork('TRC20')
-        setWithdrawMethod('bank')
+        setWithdrawMethod('crypto')
         fetchWallet()
         fetchTransactions()
         setTimeout(() => setSuccess(''), 5000)
@@ -1223,7 +1223,7 @@ const WalletPage = () => {
                   setShowWithdrawModal(false)
                   setAmount('')
                   setSelectedBankAccount(null)
-                  setWithdrawMethod('bank')
+                  setWithdrawMethod('crypto')
                   setCryptoWithdrawAddress('')
                   setCryptoWithdrawCurrency('USDT')
                   setCryptoWithdrawNetwork('TRC20')
@@ -1243,34 +1243,17 @@ const WalletPage = () => {
               )}
             </div>
 
-            {/* Withdrawal Method Selector */}
+            {/* Withdrawal Method - Crypto Only */}
             <div className="mb-4">
               <label className="block text-gray-400 text-sm mb-2">Withdrawal Method</label>
-              <div className={`grid ${oxapayEnabled ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+              <div className="grid grid-cols-1 gap-2">
                 <button
-                  onClick={() => setWithdrawMethod('bank')}
-                  className={`p-3 rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-                    withdrawMethod === 'bank'
-                      ? 'border-accent-green bg-accent-green/10'
-                      : 'border-gray-700 bg-dark-700 hover:border-gray-600'
-                  }`}
+                  onClick={() => setWithdrawMethod('crypto')}
+                  className="p-3 rounded-lg border transition-colors flex items-center justify-center gap-2 border-orange-500 bg-orange-500/10"
                 >
-                  <Building size={18} />
-                  <span className="text-white text-sm">Bank / UPI</span>
+                  <Bitcoin size={18} className="text-orange-400" />
+                  <span className="text-white text-sm">Crypto (USDT/BTC/ETH)</span>
                 </button>
-                {oxapayEnabled && (
-                  <button
-                    onClick={() => setWithdrawMethod('crypto')}
-                    className={`p-3 rounded-lg border transition-colors flex items-center justify-center gap-2 ${
-                      withdrawMethod === 'crypto'
-                        ? 'border-orange-500 bg-orange-500/10'
-                        : 'border-gray-700 bg-dark-700 hover:border-gray-600'
-                    }`}
-                  >
-                    <Bitcoin size={18} className="text-orange-400" />
-                    <span className="text-white text-sm">Crypto</span>
-                  </button>
-                )}
               </div>
             </div>
 
@@ -1285,58 +1268,8 @@ const WalletPage = () => {
               />
             </div>
 
-            {/* Bank/UPI Withdrawal */}
-            {withdrawMethod === 'bank' && (
-              <div className="mb-6">
-                <label className="block text-gray-400 text-sm mb-2">Select Withdrawal Account</label>
-                {userBankAccounts.length === 0 ? (
-                  <div className="p-4 bg-dark-700 rounded-lg border border-gray-700 text-center">
-                    <p className="text-gray-400 mb-3">No approved bank accounts or UPI IDs found.</p>
-                    <button
-                      onClick={() => {
-                        setShowWithdrawModal(false)
-                        navigate('/profile')
-                      }}
-                      className="bg-accent-green text-black px-4 py-2 rounded-lg font-medium hover:bg-accent-green/90 transition-colors"
-                    >
-                      Add Withdrawal Account
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {userBankAccounts.map((account) => (
-                      <button
-                        key={account._id}
-                        onClick={() => setSelectedBankAccount(account)}
-                        className={`w-full p-3 rounded-lg border transition-colors flex items-center gap-3 text-left ${
-                          selectedBankAccount?._id === account._id
-                            ? 'border-accent-green bg-accent-green/10'
-                            : 'border-gray-700 bg-dark-700 hover:border-gray-600'
-                        }`}
-                      >
-                        {account.type === 'UPI' ? (
-                          <Smartphone size={20} className="text-blue-400" />
-                        ) : (
-                          <Building size={20} className="text-purple-400" />
-                        )}
-                        <div className="flex-1">
-                          <p className="text-white font-medium">{account.bankName || 'UPI'}</p>
-                          <p className="text-gray-400 text-sm">
-                            {account.type === 'UPI' 
-                              ? account.upiId 
-                              : `A/C: ${account.accountNumber} | IFSC: ${account.ifscCode}`}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Crypto Withdrawal */}
-            {withdrawMethod === 'crypto' && (
-              <div className="mb-6 space-y-3">
+            <div className="mb-6 space-y-3">
                 <div>
                   <label className="block text-gray-400 text-sm mb-2">Crypto Currency</label>
                   <select
@@ -1382,8 +1315,7 @@ const WalletPage = () => {
                     <span className="text-orange-400 font-medium">Note:</span> Crypto withdrawals require admin approval. Once approved, funds will be sent to your wallet address via OxaPay.
                   </p>
                 </div>
-              </div>
-            )}
+            </div>
 
             {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
@@ -1392,8 +1324,6 @@ const WalletPage = () => {
                 onClick={() => {
                   setShowWithdrawModal(false)
                   setAmount('')
-                  setSelectedBankAccount(null)
-                  setWithdrawMethod('bank')
                   setCryptoWithdrawAddress('')
                   setCryptoWithdrawCurrency('USDT')
                   setCryptoWithdrawNetwork('TRC20')
@@ -1403,21 +1333,12 @@ const WalletPage = () => {
               >
                 Cancel
               </button>
-              {withdrawMethod === 'crypto' ? (
-                <button
-                  onClick={handleCryptoWithdraw}
-                  className="flex-1 bg-orange-500 text-white font-medium py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Bitcoin size={16} /> Withdraw Crypto
-                </button>
-              ) : (
-                <button
-                  onClick={handleWithdraw}
-                  className="flex-1 bg-accent-green text-black font-medium py-3 rounded-lg hover:bg-accent-green/90 transition-colors"
-                >
-                  Submit Withdrawal
-                </button>
-              )}
+              <button
+                onClick={handleCryptoWithdraw}
+                className="flex-1 bg-orange-500 text-white font-medium py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <Bitcoin size={16} /> Withdraw Crypto
+              </button>
             </div>
           </div>
         </div>
