@@ -586,6 +586,57 @@ router.post('/verify-reset-otp', async (req, res) => {
   }
 })
 
+// POST /api/auth/change-email - Change email from profile
+router.post('/change-email', async (req, res) => {
+  try {
+    const { userId, newEmail, password } = req.body
+
+    if (!userId || !newEmail || !password) {
+      return res.status(400).json({ success: false, message: 'All fields are required' })
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newEmail)) {
+      return res.status(400).json({ success: false, message: 'Invalid email format' })
+    }
+
+    // Find user
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    // Verify password
+    const isMatch = await user.comparePassword(password)
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Incorrect password' })
+    }
+
+    // Check if new email already exists
+    const existingUser = await User.findOne({ email: newEmail.toLowerCase() })
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.status(400).json({ success: false, message: 'Email already in use by another account' })
+    }
+
+    // Update email
+    const oldEmail = user.email
+    user.email = newEmail.toLowerCase()
+    await user.save()
+
+    console.log(`User ${userId} changed email from ${oldEmail} to ${newEmail}`)
+
+    res.json({ 
+      success: true, 
+      message: 'Email changed successfully',
+      email: user.email
+    })
+  } catch (error) {
+    console.error('Change email error:', error)
+    res.status(500).json({ success: false, message: 'Error changing email', error: error.message })
+  }
+})
+
 // POST /api/auth/change-password - Change password from profile
 router.post('/change-password', async (req, res) => {
   try {

@@ -62,6 +62,47 @@ router.put('/change-password', verifyAdminToken, async (req, res) => {
   }
 })
 
+// PUT /api/admin-mgmt/change-email - Change own email
+router.put('/change-email', verifyAdminToken, async (req, res) => {
+  try {
+    const { newEmail, password } = req.body
+
+    if (!newEmail || !password) {
+      return res.status(400).json({ success: false, message: 'New email and password are required' })
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(newEmail)) {
+      return res.status(400).json({ success: false, message: 'Invalid email format' })
+    }
+
+    const admin = await Admin.findById(req.adminId)
+    if (!admin) {
+      return res.status(404).json({ success: false, message: 'Admin not found' })
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, admin.password)
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password' })
+    }
+
+    // Check if email already exists
+    const existingAdmin = await Admin.findOne({ email: newEmail.toLowerCase() })
+    if (existingAdmin && existingAdmin._id.toString() !== req.adminId) {
+      return res.status(400).json({ success: false, message: 'Email already in use' })
+    }
+
+    admin.email = newEmail.toLowerCase()
+    await admin.save()
+
+    res.json({ success: true, message: 'Email changed successfully' })
+  } catch (error) {
+    console.error('Error changing email:', error)
+    res.status(500).json({ success: false, message: 'Error changing email' })
+  }
+})
+
 // PUT /api/admin-mgmt/update-profile - Update own profile (name, phone, brandName)
 router.put('/update-profile', verifyAdminToken, async (req, res) => {
   try {

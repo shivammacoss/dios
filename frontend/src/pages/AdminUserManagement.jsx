@@ -59,6 +59,17 @@ const AdminUserManagement = () => {
   const [accountFundReason, setAccountFundReason] = useState('')
   const [userWalletBalance, setUserWalletBalance] = useState(0)
   
+  // Edit Profile Form
+  const [editProfileForm, setEditProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    country: '',
+    address: ''
+  })
+  
   const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}')
 
   useEffect(() => {
@@ -137,6 +148,33 @@ const AdminUserManagement = () => {
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  // Handle Edit Profile
+  const handleEditProfile = async () => {
+    setActionLoading(true)
+    try {
+      const response = await fetch(`${API_URL}/admin/users/${selectedUser._id}/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editProfileForm,
+          adminId: adminUser._id
+        })
+      })
+      const data = await response.json()
+      if (data.success) {
+        setMessage({ type: 'success', text: 'Profile updated successfully' })
+        fetchUsers()
+        setSelectedUser({ ...selectedUser, ...editProfileForm })
+        setTimeout(() => setModalType('view'), 1500)
+      } else {
+        setMessage({ type: 'error', text: data.message || 'Failed to update profile' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Error updating profile' })
+    }
+    setActionLoading(false)
   }
 
   const fetchUserAccounts = async (userId) => {
@@ -685,6 +723,114 @@ const AdminUserManagement = () => {
                   >
                     <LogIn size={16} />
                     <span className="text-sm">{actionLoading ? 'Opening...' : 'Login as User'}</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setEditProfileForm({
+                        firstName: selectedUser.firstName || '',
+                        lastName: selectedUser.lastName || '',
+                        email: selectedUser.email || '',
+                        phone: selectedUser.phone || '',
+                        dateOfBirth: selectedUser.dateOfBirth ? selectedUser.dateOfBirth.split('T')[0] : '',
+                        country: selectedUser.country || '',
+                        address: selectedUser.address || ''
+                      })
+                      setModalType('editProfile')
+                    }}
+                    className="flex items-center justify-center gap-2 p-3 bg-purple-500/20 text-purple-500 rounded-lg hover:bg-purple-500/30 transition-colors"
+                  >
+                    <Edit size={16} />
+                    <span className="text-sm">Edit Profile</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Profile Modal */}
+            {modalType === 'editProfile' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-purple-500 mb-2">
+                  <Edit size={20} />
+                  <h4 className="font-semibold">Edit User Profile</h4>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">First Name</label>
+                    <input
+                      type="text"
+                      value={editProfileForm.firstName}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, firstName: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">Last Name</label>
+                    <input
+                      type="text"
+                      value={editProfileForm.lastName}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, lastName: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-gray-400 text-sm mb-1 block">Email</label>
+                    <input
+                      type="email"
+                      value={editProfileForm.email}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, email: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">Phone</label>
+                    <input
+                      type="text"
+                      value={editProfileForm.phone}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, phone: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={editProfileForm.dateOfBirth}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, dateOfBirth: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">Country</label>
+                    <input
+                      type="text"
+                      value={editProfileForm.country}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, country: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1 block">Address</label>
+                    <input
+                      type="text"
+                      value={editProfileForm.address}
+                      onChange={(e) => setEditProfileForm({...editProfileForm, address: e.target.value})}
+                      className="w-full bg-dark-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button 
+                    onClick={() => setModalType('view')}
+                    className="flex-1 py-2 bg-dark-700 text-white rounded-lg hover:bg-dark-600"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleEditProfile}
+                    disabled={actionLoading}
+                    className="flex-1 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50"
+                  >
+                    {actionLoading ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>

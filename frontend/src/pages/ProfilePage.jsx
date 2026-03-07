@@ -49,6 +49,16 @@ const ProfilePage = () => {
   const [challengeModeEnabled, setChallengeModeEnabled] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   
+  // Change Email State
+  const [showChangeEmailModal, setShowChangeEmailModal] = useState(false)
+  const [changeEmailForm, setChangeEmailForm] = useState({
+    newEmail: '',
+    password: ''
+  })
+  const [changeEmailLoading, setChangeEmailLoading] = useState(false)
+  const [changeEmailError, setChangeEmailError] = useState('')
+  const [changeEmailSuccess, setChangeEmailSuccess] = useState('')
+  
   // KYC State
   const [kycStatus, setKycStatus] = useState(null)
   const [kycLoading, setKycLoading] = useState(false)
@@ -189,6 +199,56 @@ const ProfilePage = () => {
     }
   }
   
+  // Handle Change Email
+  const handleChangeEmail = async () => {
+    if (!changeEmailForm.newEmail || !changeEmailForm.password) {
+      setChangeEmailError('Please fill all fields')
+      return
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(changeEmailForm.newEmail)) {
+      setChangeEmailError('Please enter a valid email address')
+      return
+    }
+    
+    setChangeEmailLoading(true)
+    setChangeEmailError('')
+    setChangeEmailSuccess('')
+    
+    try {
+      const res = await fetch(`${API_URL}/auth/change-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: storedUser._id,
+          newEmail: changeEmailForm.newEmail,
+          password: changeEmailForm.password
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setChangeEmailSuccess('Email changed successfully!')
+        // Update local storage
+        const updatedUser = { ...storedUser, email: changeEmailForm.newEmail }
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+        setProfile(prev => ({ ...prev, email: changeEmailForm.newEmail }))
+        setTimeout(() => {
+          setShowChangeEmailModal(false)
+          setChangeEmailForm({ newEmail: '', password: '' })
+          setChangeEmailSuccess('')
+        }, 2000)
+      } else {
+        setChangeEmailError(data.message || 'Failed to change email')
+      }
+    } catch (error) {
+      console.error('Error changing email:', error)
+      setChangeEmailError('Failed to change email. Please try again.')
+    }
+    setChangeEmailLoading(false)
+  }
+
   // Submit KYC
   const handleKycSubmit = async () => {
     if (!kycForm.documentNumber || !kycForm.frontImage) {
@@ -630,7 +690,15 @@ const ProfilePage = () => {
                   <label className={`text-sm mb-2 block flex items-center gap-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     <Mail size={14} /> Email
                   </label>
-                  <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>{profile.email}</p>
+                  <div className="flex items-center gap-2">
+                    <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>{profile.email}</p>
+                    <button
+                      onClick={() => setShowChangeEmailModal(true)}
+                      className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -1024,6 +1092,83 @@ const ProfilePage = () => {
                         className="flex-1 py-3 bg-accent-green text-black font-medium rounded-lg hover:bg-accent-green/90 disabled:opacity-50"
                       >
                         {loading ? 'Changing...' : 'Change Password'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Change Email Modal */}
+            {showChangeEmailModal && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowChangeEmailModal(false)}>
+                <div className={`w-full max-w-md rounded-2xl p-6 ${isDarkMode ? 'bg-dark-800' : 'bg-white'}`} onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Change Email</h3>
+                    <button onClick={() => setShowChangeEmailModal(false)} className="text-gray-500 hover:text-gray-400">
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  {changeEmailError && (
+                    <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+                      {changeEmailError}
+                    </div>
+                  )}
+
+                  {changeEmailSuccess && (
+                    <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm">
+                      {changeEmailSuccess}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className={`text-sm mb-2 block ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Current Email</label>
+                      <p className={`px-4 py-3 rounded-lg ${isDarkMode ? 'bg-dark-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}>
+                        {profile.email}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className={`text-sm mb-2 block ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>New Email</label>
+                      <input
+                        type="email"
+                        value={changeEmailForm.newEmail}
+                        onChange={(e) => setChangeEmailForm({...changeEmailForm, newEmail: e.target.value})}
+                        className={`w-full rounded-lg px-4 py-3 border ${isDarkMode ? 'bg-dark-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
+                        placeholder="Enter new email address"
+                      />
+                    </div>
+
+                    <div>
+                      <label className={`text-sm mb-2 block ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Password (for verification)</label>
+                      <input
+                        type="password"
+                        value={changeEmailForm.password}
+                        onChange={(e) => setChangeEmailForm({...changeEmailForm, password: e.target.value})}
+                        className={`w-full rounded-lg px-4 py-3 border ${isDarkMode ? 'bg-dark-700 border-gray-600 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
+                        placeholder="Enter your password"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => {
+                          setShowChangeEmailModal(false)
+                          setChangeEmailForm({ newEmail: '', password: '' })
+                          setChangeEmailError('')
+                        }}
+                        className={`flex-1 py-3 rounded-lg ${isDarkMode ? 'bg-dark-700 text-white hover:bg-dark-600' : 'bg-gray-200 text-gray-900 hover:bg-gray-300'}`}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleChangeEmail}
+                        disabled={changeEmailLoading}
+                        className="flex-1 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                      >
+                        {changeEmailLoading ? 'Changing...' : 'Change Email'}
                       </button>
                     </div>
                   </div>

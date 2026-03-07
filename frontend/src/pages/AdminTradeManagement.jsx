@@ -49,7 +49,9 @@ const AdminTradeManagement = () => {
     quantity: 0,
     stopLoss: '',
     takeProfit: '',
-    realizedPnl: 0
+    realizedPnl: 0,
+    openedAt: '',
+    closedAt: ''
   })
   const [marketPrices, setMarketPrices] = useState({})
   const [loadingPrices, setLoadingPrices] = useState(false)
@@ -268,7 +270,9 @@ const AdminTradeManagement = () => {
           quantity: parseFloat(editForm.quantity),
           stopLoss: editForm.stopLoss ? parseFloat(editForm.stopLoss) : null,
           takeProfit: editForm.takeProfit ? parseFloat(editForm.takeProfit) : null,
-          realizedPnl: editForm.realizedPnl ? parseFloat(editForm.realizedPnl) : null
+          realizedPnl: editForm.realizedPnl ? parseFloat(editForm.realizedPnl) : null,
+          openedAt: editForm.openedAt || null,
+          closedAt: editForm.closedAt || null
         })
       })
       const data = await res.json()
@@ -323,13 +327,21 @@ const AdminTradeManagement = () => {
 
   const openEditModal = (trade) => {
     setSelectedTrade(trade)
+    // Format dates for datetime-local input
+    const formatDateForInput = (date) => {
+      if (!date) return ''
+      const d = new Date(date)
+      return d.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:mm
+    }
     setEditForm({
       openPrice: trade.openPrice || 0,
       closePrice: trade.closePrice || '',
       quantity: trade.quantity || 0,
       stopLoss: trade.stopLoss || '',
       takeProfit: trade.takeProfit || '',
-      realizedPnl: trade.realizedPnl || 0
+      realizedPnl: trade.realizedPnl || 0,
+      openedAt: formatDateForInput(trade.openedAt || trade.createdAt),
+      closedAt: formatDateForInput(trade.closedAt)
     })
     setShowEditModal(true)
   }
@@ -926,6 +938,35 @@ const AdminTradeManagement = () => {
                     className="w-full px-3 py-2 bg-dark-700 border border-gray-700 rounded-lg text-white"
                     placeholder="Optional"
                   />
+                </div>
+              </div>
+
+              {/* Date Settings - Edit Open/Close Dates */}
+              <div className="border-t border-gray-700 pt-4 mt-4">
+                <p className="text-gray-400 text-sm mb-3">📅 Trade Date Settings</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">Opened At</label>
+                    <input
+                      type="datetime-local"
+                      value={editForm.openedAt}
+                      onChange={(e) => setEditForm({ ...editForm, openedAt: e.target.value })}
+                      className="w-full px-3 py-2 bg-dark-700 border border-gray-700 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 text-sm mb-1">Closed At</label>
+                    <input
+                      type="datetime-local"
+                      value={editForm.closedAt}
+                      onChange={(e) => setEditForm({ ...editForm, closedAt: e.target.value })}
+                      className="w-full px-3 py-2 bg-dark-700 border border-gray-700 rounded-lg text-white"
+                      disabled={selectedTrade?.status === 'OPEN'}
+                    />
+                    {selectedTrade?.status === 'OPEN' && (
+                      <p className="text-xs text-gray-500 mt-1">Available after trade is closed</p>
+                    )}
+                  </div>
                 </div>
               </div>
 

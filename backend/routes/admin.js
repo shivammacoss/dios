@@ -298,6 +298,44 @@ router.put('/users/:id/block', async (req, res) => {
   }
 })
 
+// PUT /api/admin/users/:id/profile - Update user profile
+router.put('/users/:id/profile', async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, dateOfBirth, country, address, adminId } = req.body
+
+    const user = await User.findById(req.params.id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    // Check if email is being changed and if it's already in use
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+      const existingUser = await User.findOne({ email: email.toLowerCase() })
+      if (existingUser && existingUser._id.toString() !== req.params.id) {
+        return res.status(400).json({ success: false, message: 'Email already in use by another account' })
+      }
+    }
+
+    // Update fields
+    if (firstName !== undefined) user.firstName = firstName
+    if (lastName !== undefined) user.lastName = lastName
+    if (email !== undefined) user.email = email.toLowerCase()
+    if (phone !== undefined) user.phone = phone
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth
+    if (country !== undefined) user.country = country
+    if (address !== undefined) user.address = address
+
+    await user.save()
+
+    console.log(`Admin ${adminId} updated profile for user ${user._id}`)
+
+    res.json({ success: true, message: 'Profile updated successfully', user })
+  } catch (error) {
+    console.error('Error updating user profile:', error)
+    res.status(500).json({ success: false, message: 'Error updating profile', error: error.message })
+  }
+})
+
 // PUT /api/admin/users/:id/ban - Ban/Unban user
 router.put('/users/:id/ban', async (req, res) => {
   try {
