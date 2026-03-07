@@ -208,8 +208,10 @@ class TradeEngine {
     const utcHour = now.getUTCHours()
     
     // Crypto markets are always open
-    if (['BTCUSD', 'ETHUSD', 'LTCUSD', 'XRPUSD', 'BCHUSD', 'BNBUSD', 'SOLUSD', 'ADAUSD', 'DOGEUSD', 'DOTUSD', 'MATICUSD', 'AVAXUSD', 'LINKUSD'].includes(symbol)) {
-      return true
+    const cryptoSymbols = ['BTCUSD','ETHUSD','LTCUSD', 'XRPUSD','BCHUSD','BNBUSD','SOLUSD','ADAUSD','DOGEUSD','MATICUSD','AVAXUSD', 'LINKUSD','BTCUSDT','ETHUSDT','LTCUSDT','XRPUSDT','BNBUSDT','SOLUSDT','ADAUSDT','DOGEUSDT','MATICUSDT','AVAXUSDT','LINKUSDT','DOTUSD', 'DOTUSDT']
+
+    if(cryptoSymbols.includes(symbol) || symbol.endsWith('USDT')) {
+      return true;
     }
     
     // Forex and Metals: Closed from Friday 22:00 UTC to Sunday 22:00 UTC

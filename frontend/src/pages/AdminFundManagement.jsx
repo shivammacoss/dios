@@ -25,6 +25,9 @@ const AdminFundManagement = () => {
   const [selectedTxn, setSelectedTxn] = useState(null)
   const [userDetails, setUserDetails] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [editingDate, setEditingDate] = useState(false)
+  const [editDate, setEditDate] = useState('')
+  const [savingDate, setSavingDate] = useState(false)
 
   useEffect(() => {
     fetchTransactions()
@@ -140,6 +143,32 @@ const AdminFundManagement = () => {
     setShowDetailsModal(false)
     setSelectedTxn(null)
     setUserDetails(null)
+    setEditingDate(false)
+    setEditDate('')
+  }
+
+  const handleSaveDate = async () => {
+    if (!editDate || !selectedTxn) return
+    setSavingDate(true)
+    try {
+      const res = await fetch(`${API_URL}/wallet/transaction/${selectedTxn._id}/update-date`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ createdAt: editDate })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setSelectedTxn({ ...selectedTxn, createdAt: editDate })
+        setEditingDate(false)
+        fetchTransactions()
+      } else {
+        alert(data.message || 'Failed to update date')
+      }
+    } catch (error) {
+      console.error('Error updating date:', error)
+      alert('Error updating date')
+    }
+    setSavingDate(false)
   }
 
   return (
@@ -423,7 +452,44 @@ const AdminFundManagement = () => {
                   </div>
                   <div>
                     <p className="text-gray-500">Date</p>
-                    <p className="text-white">{new Date(selectedTxn.createdAt).toLocaleString()}</p>
+                    {editingDate ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="datetime-local"
+                          value={editDate}
+                          onChange={(e) => setEditDate(e.target.value)}
+                          className="bg-dark-700 border border-gray-600 rounded px-2 py-1 text-white text-sm"
+                        />
+                        <button
+                          onClick={handleSaveDate}
+                          disabled={savingDate}
+                          className="px-2 py-1 bg-green-500 text-white rounded text-xs hover:bg-green-600 disabled:opacity-50"
+                        >
+                          {savingDate ? '...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditingDate(false)}
+                          className="px-2 py-1 bg-gray-600 text-white rounded text-xs hover:bg-gray-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <p className="text-white">{new Date(selectedTxn.createdAt).toLocaleString()}</p>
+                        <button
+                          onClick={() => {
+                            const date = new Date(selectedTxn.createdAt)
+                            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                            setEditDate(localDate)
+                            setEditingDate(true)
+                          }}
+                          className="text-blue-400 hover:text-blue-300 text-xs underline"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
                   </div>
                   {selectedTxn.transactionRef && (
                     <div className="col-span-2">

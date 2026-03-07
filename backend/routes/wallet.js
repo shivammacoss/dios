@@ -730,6 +730,30 @@ router.put('/transaction/:id/approve', async (req, res) => {
   }
 })
 
+// PUT /api/wallet/transaction/:id/update-date - Update transaction date (admin)
+router.put('/transaction/:id/update-date', async (req, res) => {
+  try {
+    const { createdAt } = req.body
+    const transaction = await Transaction.findById(req.params.id)
+    
+    if (!transaction) {
+      return res.status(404).json({ success: false, message: 'Transaction not found' })
+    }
+
+    if (!createdAt) {
+      return res.status(400).json({ success: false, message: 'Date is required' })
+    }
+
+    transaction.createdAt = new Date(createdAt)
+    await transaction.save()
+
+    res.json({ success: true, message: 'Transaction date updated', transaction })
+  } catch (error) {
+    console.error('Error updating transaction date:', error)
+    res.status(500).json({ success: false, message: 'Error updating date', error: error.message })
+  }
+})
+
 // PUT /api/wallet/transaction/:id/reject - Reject transaction (admin)
 router.put('/transaction/:id/reject', async (req, res) => {
   try {
