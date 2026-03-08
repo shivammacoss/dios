@@ -734,19 +734,26 @@ router.put('/transaction/:id/approve', async (req, res) => {
 router.put('/transaction/:id/update-date', async (req, res) => {
   try {
     const { createdAt } = req.body
-    const transaction = await Transaction.findById(req.params.id)
     
-    if (!transaction) {
-      return res.status(404).json({ success: false, message: 'Transaction not found' })
-    }
-
     if (!createdAt) {
       return res.status(400).json({ success: false, message: 'Date is required' })
     }
 
-    transaction.createdAt = new Date(createdAt)
-    await transaction.save()
+    // Use MongoDB native driver to bypass Mongoose timestamps
+    const mongoose = (await import('mongoose')).default
+    const ObjectId = mongoose.Types.ObjectId
+    
+    const result = await mongoose.connection.db.collection('transactions').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { createdAt: new Date(createdAt) } }
+    )
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: 'Transaction not found' })
+    }
 
+    const transaction = await Transaction.findById(req.params.id)
+    console.log('Transaction date updated:', req.params.id, 'New date:', createdAt, 'DB Result:', result)
     res.json({ success: true, message: 'Transaction date updated', transaction })
   } catch (error) {
     console.error('Error updating transaction date:', error)

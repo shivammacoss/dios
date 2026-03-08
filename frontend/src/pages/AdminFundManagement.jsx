@@ -36,7 +36,7 @@ const AdminFundManagement = () => {
   const fetchTransactions = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/wallet/admin/transactions`)
+      const res = await fetch(`${API_URL}/wallet/admin/transactions?t=${Date.now()}`)
       const data = await res.json()
       if (data.transactions) {
         let filtered = data.transactions
@@ -158,9 +158,15 @@ const AdminFundManagement = () => {
       })
       const data = await res.json()
       if (data.success) {
-        setSelectedTxn({ ...selectedTxn, createdAt: editDate })
+        // Update local state immediately
+        const updatedTxn = { ...selectedTxn, createdAt: new Date(editDate).toISOString() }
+        setSelectedTxn(updatedTxn)
         setEditingDate(false)
-        fetchTransactions()
+        
+        // Update transactions list directly
+        setTransactions(prev => prev.map(t => 
+          t._id === selectedTxn._id ? { ...t, createdAt: new Date(editDate).toISOString() } : t
+        ))
       } else {
         alert(data.message || 'Failed to update date')
       }
